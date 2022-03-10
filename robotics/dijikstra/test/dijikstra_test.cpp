@@ -25,12 +25,11 @@ struct Coordinate {
 };
 
 struct Cell {
-  Coordinate coordinate;
-  int f{INT_MAX};
-  int g{INT_MAX};
+  Coordinate parent_coordinate;
+  int cost{INT_MAX};
   bool occupied{false};
   bool operator==(const Cell& other) const {
-    return (coordinate == other.coordinate);
+    return (parent_coordinate == other.parent_coordinate);
   }
 };
 
@@ -68,10 +67,11 @@ class PathPlanning {
     std::vector<Coordinate> path;
     auto x = dest.x;
     auto y = dest.y;
-    while (!(map_[x][y].coordinate.x == x && map_[x][y].coordinate.y == y)) {
+    while (!(map_[x][y].parent_coordinate.x == x &&
+             map_[x][y].parent_coordinate.y == y)) {
       path.push_back({x, y});
-      auto temp_x = map_[x][y].coordinate.x;
-      auto temp_y = map_[x][y].coordinate.y;
+      auto temp_x = map_[x][y].parent_coordinate.x;
+      auto temp_y = map_[x][y].parent_coordinate.y;
       x = temp_x;
       y = temp_y;
     }
@@ -95,10 +95,9 @@ class PathPlanning {
 
     traverse_path.insert(std::make_pair(0, std::make_pair(src.x, src.y)));
 
-    map_[src.x][src.y].coordinate = src;
+    map_[src.x][src.y].parent_coordinate = src;
 
-    map_[src.x][src.y].f = 0;
-    map_[src.x][src.y].g = 0;
+    map_[src.x][src.y].cost = 0;
 
     bool found_path{false};
 
@@ -121,28 +120,27 @@ class PathPlanning {
         // if reach destination
         if (coordinate == dest) {
           std::cout << "Found path!" << std::endl;
-          map_[coordinate.x][coordinate.y].coordinate.x = i;
-          map_[coordinate.x][coordinate.y].coordinate.y = j;
+          map_[coordinate.x][coordinate.y].parent_coordinate.x = i;
+          map_[coordinate.x][coordinate.y].parent_coordinate.y = j;
           found_path = true;
           break;
         }
         // not occupied
         if (!map_[coordinate.x][coordinate.y].occupied &&
             !visited[coordinate.x][coordinate.y]) {
-          auto new_g = map_[i][j].g + 1;
+          auto new_cost = map_[i][j].cost + 1;
 
-          if (map_[coordinate.x][coordinate.y].f == INT_MAX ||
-              map_[coordinate.x][coordinate.y].f >= new_g) {
-            map_[coordinate.x][coordinate.y].f = new_g;
-            map_[coordinate.x][coordinate.y].g = new_g;
+          if (map_[coordinate.x][coordinate.y].cost == INT_MAX ||
+              map_[coordinate.x][coordinate.y].cost >= new_cost) {
+            map_[coordinate.x][coordinate.y].cost = new_cost;
 
-            map_[coordinate.x][coordinate.y].coordinate.x = i;
-            map_[coordinate.x][coordinate.y].coordinate.y = j;
+            map_[coordinate.x][coordinate.y].parent_coordinate.x = i;
+            map_[coordinate.x][coordinate.y].parent_coordinate.y = j;
 
             std::cout << "traverse to (" << coordinate.x << "," << coordinate.y
                       << ")" << std::endl;
             traverse_path.insert(std::make_pair(
-                new_g, std::make_pair(coordinate.x, coordinate.y)));
+                new_cost, std::make_pair(coordinate.x, coordinate.y)));
           }
         }
       }
