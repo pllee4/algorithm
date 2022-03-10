@@ -21,7 +21,7 @@ jobs:
         fetch-depth: 0
 
     - name: Install Dependencies
-      run: sudo apt install gcc-multilib g++-multilib lcov
+      run: sudo apt update && sudo apt install -y gcc-multilib g++-multilib lcov
 
     - name: Set up JDK
       uses: actions/setup-java@v1
@@ -64,7 +64,7 @@ jobs:
         --define sonar.organization=pllee4
         --define sonar.projectName=algorithm
         --define sonar.projectKey=algorithm
-        --define sonar.sources=src
+        --define sonar.sources=robotics
         --define sonar.cfamily.gcov.reportsPath=.
         --define sonar.cfamily.cache.enabled=false
         --define sonar.cfamily.threads=2
