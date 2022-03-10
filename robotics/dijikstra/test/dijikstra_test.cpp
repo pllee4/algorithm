@@ -16,18 +16,11 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-// using namespace pllee4;
-
 struct Coordinate {
   int x;
   int y;
   bool operator==(const Coordinate& other) const {
     return (x == other.x && y == other.y);
-  }
-  Coordinate& operator=(const Coordinate& other) {
-    x = other.x;
-    y = other.y;
-    return *this;
   }
 };
 
@@ -54,8 +47,8 @@ class PathPlanning {
   PathPlanning() = default;
   ~PathPlanning() = default;
 
-  bool SetOccupancyGrid(std::vector<Coordinate>& occupancy_grid, size_t x_size,
-                        size_t y_size) {
+  bool SetOccupancyGrid(const std::vector<Coordinate>& occupancy_grid,
+                        int x_size, int y_size) {
     map_x_size_ = x_size;
     map_y_size_ = y_size;
     // assign occupancy
@@ -75,7 +68,7 @@ class PathPlanning {
     std::vector<Coordinate> path;
     auto x = dest.x;
     auto y = dest.y;
-    while (!(map_[x][y].coordinate.x == x and map_[x][y].coordinate.y == y)) {
+    while (!(map_[x][y].coordinate.x == x && map_[x][y].coordinate.y == y)) {
       path.push_back({x, y});
       auto temp_x = map_[x][y].coordinate.x;
       auto temp_y = map_[x][y].coordinate.y;
@@ -123,34 +116,33 @@ class PathPlanning {
         Coordinate coordinate;
         coordinate.x = i + dx_[k];
         coordinate.y = j + dy_[k];
+        // ensure the coordinate is within the range
+        if (!IsValidCoordinate(coordinate)) continue;
+        // if reach destination
+        if (coordinate == dest) {
+          std::cout << "Found path!" << std::endl;
+          map_[coordinate.x][coordinate.y].coordinate.x = i;
+          map_[coordinate.x][coordinate.y].coordinate.y = j;
+          found_path = true;
+          break;
+        }
+        // not occupied
+        if (!map_[coordinate.x][coordinate.y].occupied &&
+            !visited[coordinate.x][coordinate.y]) {
+          auto new_g = map_[i][j].g + 1;
 
-        if (IsValidCoordinate(coordinate)) {
-          if (coordinate == dest) {
-            std::cout << "Found path!" << std::endl;
+          if (map_[coordinate.x][coordinate.y].f == INT_MAX ||
+              map_[coordinate.x][coordinate.y].f >= new_g) {
+            map_[coordinate.x][coordinate.y].f = new_g;
+            map_[coordinate.x][coordinate.y].g = new_g;
+
             map_[coordinate.x][coordinate.y].coordinate.x = i;
             map_[coordinate.x][coordinate.y].coordinate.y = j;
-            found_path = true;
-            break;
-          } else {
-            // not occupied
-            if (!map_[coordinate.x][coordinate.y].occupied &&
-                !visited[coordinate.x][coordinate.y]) {
-              auto gNew = map_[i][j].g + 1;
 
-              if (map_[coordinate.x][coordinate.y].f == INT_MAX ||
-                  map_[coordinate.x][coordinate.y].f >= gNew) {
-                map_[coordinate.x][coordinate.y].f = gNew;
-                map_[coordinate.x][coordinate.y].g = gNew;
-
-                map_[coordinate.x][coordinate.y].coordinate.x = i;
-                map_[coordinate.x][coordinate.y].coordinate.y = j;
-
-                std::cout << "traverse to (" << coordinate.x << ","
-                          << coordinate.y << ")" << std::endl;
-                traverse_path.insert(std::make_pair(
-                    gNew, std::make_pair(coordinate.x, coordinate.y)));
-              }
-            }
+            std::cout << "traverse to (" << coordinate.x << "," << coordinate.y
+                      << ")" << std::endl;
+            traverse_path.insert(std::make_pair(
+                new_g, std::make_pair(coordinate.x, coordinate.y)));
           }
         }
       }
@@ -182,9 +174,10 @@ class PathPlanning {
 
   std::vector<std::vector<Cell>> map_;
 
-  int map_x_size_, map_y_size_;
+  int map_x_size_;
+  int map_y_size_;
 
-  bool IsValidCoordinate(const Coordinate& coordinate) {
+  bool IsValidCoordinate(const Coordinate& coordinate) const {
     return (coordinate.x >= 0 && coordinate.x < map_x_size_ &&
             coordinate.y >= 0 && coordinate.y < map_y_size_);
   }
