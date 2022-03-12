@@ -14,9 +14,8 @@
 #include <set>
 #include <stdexcept>
 
-namespace pllee4 {
-namespace graph {
-Dijikstra::Dijikstra(struct MotionConstraint& motion_constraint) {
+namespace pllee4::graph {
+Dijikstra::Dijikstra(const struct MotionConstraint& motion_constraint) {
   if (motion_constraint.dx.size() != motion_constraint.dy.size()) {
     throw std::invalid_argument{
         "Incompatible size of dx and dy for motion constraint"};
@@ -60,14 +59,8 @@ std::vector<Coordinate> Dijikstra::GetPath(const Coordinate& dest) {
 }
 
 bool Dijikstra::FindPath(const Coordinate& src, const Coordinate& dest) {
-  if (!IsValidCoordinate(src)) {
-    std::cout << "Not a valid source" << std::endl;
-    return false;
-  }
-  if (!IsValidCoordinate(dest)) {
-    std::cout << "Not a valid destination" << std::endl;
-    return false;
-  }
+  if (!IsValidCoordinate(src)) return false;
+  if (!IsValidCoordinate(dest)) return false;
 
   std::vector<std::vector<bool>> visited(map_x_size_,
                                          std::vector<bool>(map_y_size_, false));
@@ -100,7 +93,6 @@ bool Dijikstra::FindPath(const Coordinate& src, const Coordinate& dest) {
       if (!IsValidCoordinate(coordinate)) continue;
       // if reach destination
       if (coordinate == dest) {
-        std::cout << "Found path!" << std::endl;
         map_[coordinate.x][coordinate.y].parent_coordinate.x = i;
         map_[coordinate.x][coordinate.y].parent_coordinate.y = j;
         found_path = true;
@@ -137,6 +129,4 @@ bool Dijikstra::FindPath(const Coordinate& src, const Coordinate& dest) {
   }
   return true;
 }
-
-}  // namespace graph
-}  // namespace pllee4
+}  // namespace pllee4::graph

@@ -14,8 +14,7 @@
 #include <climits>
 #include <vector>
 
-namespace pllee4 {
-namespace graph {
+namespace pllee4::graph {
 
 /**
  * @brief Coordinate
@@ -59,7 +58,7 @@ y
 
 class Dijikstra {
  public:
-  explicit Dijikstra(struct MotionConstraint& motion_constraint);
+  explicit Dijikstra(const struct MotionConstraint& motion_constraint);
   ~Dijikstra() = default;
 
   bool SetOccupancyGrid(const std::vector<Coordinate>& occupancy_grid,
@@ -79,6 +78,5 @@ class Dijikstra {
             coordinate.y >= 0 && coordinate.y < map_y_size_);
   }
 };
-}  // namespace graph
-}  // namespace pllee4
+}  // namespace pllee4::graph
 #endif /* DIJIKSTRA_HPP */

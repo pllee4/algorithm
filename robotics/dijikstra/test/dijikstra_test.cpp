@@ -23,7 +23,7 @@ TEST(Dijikstra, InvalidConstructor) {
   motion_constraint.dy = {0, 1, 0};
   try {
     Dijikstra dijikstra(motion_constraint);
-  } catch (const std::exception& e) {
+  } catch (const std::invalid_argument& e) {
     EXPECT_EQ(
         e.what(),
         std::string("Incompatible size of dx and dy for motion constraint"));
