@@ -42,7 +42,7 @@ jobs:
       - name: List coverage summary
         run: /usr/bin/lcov --list ./build/coverage.info
       - name: Upload report to codecov
-        run: bash <(curl -s https://codecov.io/bash) -f ./build/coverage.info
+        run: bash <(curl -s https://codecov.io/bash) -t ${{ secrets.CODECOV_TOKEN }} -f ./build/coverage.info
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with: 
