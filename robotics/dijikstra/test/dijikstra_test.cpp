@@ -116,3 +116,27 @@ TEST(Dijikstra, GetPath) {
   EXPECT_TRUE(std::equal(std::begin(path), std::end(path), std::begin(expected),
                          std::end(expected)));
 }
+
+TEST(Dijikstra, GetPathWithRevisit) {
+  struct MotionConstraint motion_constraint;
+  motion_constraint.dx = {1, 0, -1, 0};
+  motion_constraint.dy = {0, 1, 0, -1};
+
+  Dijikstra dijikstra{motion_constraint};
+
+  /**
+   * s = start, e = end, x = occupied
+   *  |   |   |   |
+   *  | s | x |   |
+   *  |   |   |   |
+   *  |   |   | e |
+   */
+
+  dijikstra.SetOccupancyGrid({{1, 2}}, 3, 4);
+  dijikstra.FindPath({0, 2}, {2, 0});
+  auto path = dijikstra.GetPath({2, 0});
+
+  std::vector<Coordinate> expected = {{0, 2}, {0, 1}, {1, 1}, {1, 0}, {2, 0}};
+  EXPECT_TRUE(std::equal(std::begin(path), std::end(path), std::begin(expected),
+                         std::end(expected)));
+}
