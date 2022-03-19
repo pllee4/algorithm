@@ -13,6 +13,7 @@
 #include <iostream>
 #include <set>
 #include <stdexcept>
+#include <tuple>
 
 namespace pllee4::graph {
 Dijikstra::Dijikstra(const struct MotionConstraint& motion_constraint) {
@@ -43,15 +44,12 @@ bool Dijikstra::SetOccupancyGrid(const std::vector<Coordinate>& occupancy_grid,
 
 std::vector<Coordinate> Dijikstra::GetPath(const Coordinate& dest) {
   std::vector<Coordinate> path;
-  auto x = dest.x;
-  auto y = dest.y;
+  auto [x, y] = dest;
   while (!(map_[x][y].parent_coordinate.x == x &&
            map_[x][y].parent_coordinate.y == y)) {
     path.push_back({x, y});
-    auto temp_x = map_[x][y].parent_coordinate.x;
-    auto temp_y = map_[x][y].parent_coordinate.y;
-    x = temp_x;
-    y = temp_y;
+    auto [temp_x, temp_y] = map_[x][y].parent_coordinate;
+    std::tie(x, y) = std::pair(temp_x, temp_y);
   }
   path.push_back({x, y});
   std::reverse(path.begin(), path.end());
@@ -79,8 +77,7 @@ bool Dijikstra::FindPath(const Coordinate& src, const Coordinate& dest) {
     auto travelled_path = traverse_path.begin();
     traverse_path.erase(traverse_path.begin());
 
-    auto i = travelled_path->second.first;
-    auto j = travelled_path->second.second;
+    auto [i, j] = travelled_path->second;
 
     // mark node as visited
     visited[i][j] = true;
@@ -93,8 +90,7 @@ bool Dijikstra::FindPath(const Coordinate& src, const Coordinate& dest) {
       if (!IsValidCoordinate(coordinate)) continue;
       // if reach destination
       if (coordinate == dest) {
-        map_[coordinate.x][coordinate.y].parent_coordinate.x = i;
-        map_[coordinate.x][coordinate.y].parent_coordinate.y = j;
+        map_[coordinate.x][coordinate.y].parent_coordinate = {i, j};
         found_path = true;
         break;
       }
@@ -107,8 +103,7 @@ bool Dijikstra::FindPath(const Coordinate& src, const Coordinate& dest) {
             map_[coordinate.x][coordinate.y].cost >= new_cost) {
           map_[coordinate.x][coordinate.y].cost = new_cost;
 
-          map_[coordinate.x][coordinate.y].parent_coordinate.x = i;
-          map_[coordinate.x][coordinate.y].parent_coordinate.y = j;
+          map_[coordinate.x][coordinate.y].parent_coordinate = {i, j};
 
           std::cout << "traverse to (" << coordinate.x << "," << coordinate.y
                     << ")" << std::endl;
@@ -119,9 +114,8 @@ bool Dijikstra::FindPath(const Coordinate& src, const Coordinate& dest) {
     }
     if (found_path) {
       auto path = GetPath(dest);
-      for (const auto& coordinate : path) {
-        std::cout << "(" << coordinate.x << ", " << coordinate.y << ")->"
-                  << std::endl;
+      for (const auto& [x, y] : path) {
+        std::cout << "(" << x << ", " << y << ")->" << std::endl;
       }
       std::cout << "The end" << std::endl;
       break;
