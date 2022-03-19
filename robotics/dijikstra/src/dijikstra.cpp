@@ -10,6 +10,7 @@
 #include "dijikstra/dijikstra.hpp"
 
 #include <algorithm>
+#include <cmath>
 #include <iostream>
 #include <set>
 #include <stdexcept>
@@ -97,9 +98,12 @@ bool Dijikstra::FindPath(const Coordinate& src, const Coordinate& dest) {
       // not occupied
       if (!map_[coordinate.x][coordinate.y].occupied &&
           !visited[coordinate.x][coordinate.y]) {
-        auto new_cost = map_[i][j].cost + 1;
+        auto dist_travelled =
+            sqrt(abs(motion_constraint_.dx[k]) + abs(motion_constraint_.dy[k]));
+        auto new_cost = map_[i][j].cost + dist_travelled;
 
-        if (map_[coordinate.x][coordinate.y].cost == INT_MAX ||
+        if (map_[coordinate.x][coordinate.y].cost ==
+                std::numeric_limits<decltype(Cell::cost)>::max() ||
             map_[coordinate.x][coordinate.y].cost >= new_cost) {
           map_[coordinate.x][coordinate.y].cost = new_cost;
 

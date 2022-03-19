@@ -11,7 +11,7 @@
 #ifndef DIJIKSTRA_HPP
 #define DIJIKSTRA_HPP
 
-#include <climits>
+#include <limits>
 #include <vector>
 
 namespace pllee4::graph {
@@ -34,7 +34,7 @@ struct Coordinate {
  */
 struct Cell {
   Coordinate parent_coordinate;
-  int cost{INT_MAX};
+  float cost{std::numeric_limits<float>::max()};
   bool occupied{false};
   bool operator==(const Cell& other) const {
     return (parent_coordinate == other.parent_coordinate);
