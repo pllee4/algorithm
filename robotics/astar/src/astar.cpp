@@ -151,6 +151,7 @@ double AStar::ComputeH(const Coordinate &curr, const Coordinate &dest) const {
     case MotionConstraintType::ANY_MOTION:
       // Euclidean
       h = sqrt(dx * dx + dy * dy);
+      break;
     default:
       break;
   }
