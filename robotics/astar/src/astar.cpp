@@ -135,14 +135,14 @@ bool AStar::FindPath(const Coordinate &src, const Coordinate &dest) {
   return true;
 }
 
-float AStar::ComputeH(const Coordinate &curr, const Coordinate &dest) {
+double AStar::ComputeH(const Coordinate &curr, const Coordinate &dest) const {
   auto dx = curr.x - dest.x;
   auto dy = curr.y - dest.y;
-  float h;
+  double h;
   switch (motion_constraint_type_) {
     case MotionConstraintType::CARDINAL_MOTION:
       // Manhattan
-      h = abs(dx) + abs(dy);
+      h = static_cast<double>(abs(dx) + abs(dy));
       break;
     case MotionConstraintType::CARDINAL_ORDINAL_MOTION:
       // Diagonal
@@ -151,6 +151,8 @@ float AStar::ComputeH(const Coordinate &curr, const Coordinate &dest) {
     case MotionConstraintType::ANY_MOTION:
       // Euclidean
       h = sqrt(dx * dx + dy * dy);
+    default:
+      break;
   }
   return h;
 }

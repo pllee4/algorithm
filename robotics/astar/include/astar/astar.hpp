@@ -44,9 +44,9 @@ class AStar {
    */
   struct Cell {
     Coordinate parent_coordinate;
-    float f{std::numeric_limits<float>::max()};
-    float g{std::numeric_limits<float>::max()};
-    float h{std::numeric_limits<float>::max()};
+    double f{std::numeric_limits<double>::max()};
+    double g{std::numeric_limits<double>::max()};
+    double h{std::numeric_limits<double>::max()};
     bool occupied{false};
     bool operator==(const Cell &other) const {
       return (parent_coordinate == other.parent_coordinate);
@@ -80,7 +80,7 @@ class AStar {
             coordinate.y >= 0 && coordinate.y < map_y_size_);
   }
 
-  float ComputeH(const Coordinate &curr, const Coordinate &dest);
+  double ComputeH(const Coordinate &curr, const Coordinate &dest) const;
 };
 
 }  // namespace pllee4::graph
