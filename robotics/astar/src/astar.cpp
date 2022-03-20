@@ -146,7 +146,7 @@ double AStar::ComputeH(const Coordinate &curr, const Coordinate &dest) const {
       break;
     case MotionConstraintType::CARDINAL_ORDINAL_MOTION:
       // Diagonal
-      h = dx + dy + (sqrt(2) - 2) * (std::min(dx, dy));
+      h = std::max(abs(dx), abs(dy));
       break;
     case MotionConstraintType::ANY_MOTION:
       // Euclidean
