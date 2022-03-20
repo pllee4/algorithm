@@ -132,3 +132,23 @@ TEST(AStar, GetPath8DirWithRevisit) {
   EXPECT_TRUE(std::equal(std::begin(path), std::end(path), std::begin(expected),
                          std::end(expected)));
 }
+
+TEST(AStar, GetPath8DirWithRevisitWithAnyMotion) {
+  AStar astar{AStar::MotionConstraintType::ANY_MOTION};
+
+  /**
+   * s = start, e = end, x = occupied
+   *  |   |   |   |
+   *  | s | x |   |
+   *  |   |   |   |
+   *  |   |   | e |
+   */
+
+  astar.SetOccupancyGrid({{1, 2}}, 3, 4);
+  astar.FindPath({0, 2}, {2, 0});
+  auto path = astar.GetPath({2, 0});
+
+  std::vector<Coordinate> expected = {{0, 2}, {1, 1}, {2, 0}};
+  EXPECT_TRUE(std::equal(std::begin(path), std::end(path), std::begin(expected),
+                         std::end(expected)));
+}
