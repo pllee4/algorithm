@@ -9,11 +9,11 @@ mark_as_advanced(
     gmock_build_tests gtest_build_samples gtest_build_tests
     gtest_disable_pthreads gtest_force_shared_crt gtest_hide_internal_symbols
 )
-# add_executable(astar_test test/astar_test.cpp)
-# target_link_libraries(astar_test PRIVATE gtest gmock gtest_main astar)
-# gtest_discover_tests(astar_test XML_OUTPUT_DIR ${PROJECT_BINARY_DIR}/test-reports)
+add_executable(astar_test test/astar_test.cpp)
+target_link_libraries(astar_test PRIVATE gtest gmock gtest_main astar)
+gtest_discover_tests(astar_test XML_OUTPUT_DIR ${PROJECT_BINARY_DIR}/test-reports)
 
-# add_test(NAME gtest_all COMMAND astar_test)
+add_test(NAME gtest_all COMMAND astar_test)
 
 # main
 add_executable(astar_main main.cpp)
