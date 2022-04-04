@@ -32,11 +32,11 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_BINDIR})
 
 ## Project options
-option(BUILD_TEST "Build the tests" ON)
-option(COVERAGE_CHECK "Coverage check" ON)
+option(ALGO_BUILD_TEST "Build the tests" ON)
+option(ALGO_COVERAGE_CHECK "Coverage check" ON)
 
-if(COVERAGE_CHECK)
-    set(BUILD_TEST ON)
+if(ALGO_COVERAGE_CHECK)
+    set(ALGO_BUILD_TEST ON)
     find_program(GCOV gcov)
     if(GCOV)
         message(STATUS "Found gcov")
@@ -45,7 +45,7 @@ if(COVERAGE_CHECK)
     endif()
 endif()
 
-if(BUILD_TEST)
+if(ALGO_BUILD_TEST)
     enable_testing()
     include(GoogleTest)
     add_subdirectory(third_party)
