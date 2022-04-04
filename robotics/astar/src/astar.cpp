@@ -132,7 +132,7 @@ bool AStar::FindPath(const Coordinate &src, const Coordinate &dest) {
       break;
     }
   }
-  return true;
+  return found_path;
 }
 
 double AStar::ComputeH(const Coordinate &curr, const Coordinate &dest) const {

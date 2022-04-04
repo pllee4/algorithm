@@ -125,6 +125,6 @@ bool Dijikstra::FindPath(const Coordinate& src, const Coordinate& dest) {
       break;
     }
   }
-  return true;
+  return found_path;
 }
 }  // namespace pllee4::graph
