@@ -9,3 +9,6 @@ $ mkdir build && cd build
 $ cmake ..
 $ make -j
 ```
+
+# Note
+- For visualization, please refer to repo [here](https://github.com/pllee4/robot-visualizer.git)
