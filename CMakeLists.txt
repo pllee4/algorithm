@@ -51,4 +51,5 @@ if(ALGO_BUILD_TEST)
     add_subdirectory(third_party)
 endif()
 
+add_subdirectory(generic)
 add_subdirectory(robotics)
