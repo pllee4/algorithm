@@ -21,7 +21,7 @@ jobs:
         fetch-depth: 0
 
     - name: Install Dependencies
-      run: sudo apt update && sudo apt install -y gcc-multilib g++-multilib lcov
+      run: sudo apt update && sudo apt install -y gcc-multilib g++-multilib lcov libeigen3-dev
 
     - name: Set up JDK
       uses: actions/setup-java@v1
@@ -57,6 +57,9 @@ jobs:
         cmake .
         build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} make
 
+    - name: Code coverage path
+      run: |
+          sed -i 's@'$GITHUB_WORKSPACE'@/github/workspace/@g' lcov.info
     - name: Run sonar-scanner
       # Don't run sonar-scanner on builds originating from forks due to secrets not being available
       run: >
