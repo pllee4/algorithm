@@ -153,6 +153,8 @@ double AStar::ComputeH(const Coordinate &curr, const Coordinate &dest) const {
       h = sqrt(dx * dx + dy * dy);
       break;
     default:
+      // Manhattan
+      h = static_cast<double>(abs(dx) + abs(dy));
       break;
   }
   return h;
