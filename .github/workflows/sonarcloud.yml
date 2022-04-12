@@ -57,9 +57,6 @@ jobs:
         cmake .
         build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} make
 
-    - name: Code coverage path
-      run: |
-          sed -i 's@'$GITHUB_WORKSPACE'@/github/workspace/@g' lcov.info
     - name: Run sonar-scanner
       # Don't run sonar-scanner on builds originating from forks due to secrets not being available
       run: >
