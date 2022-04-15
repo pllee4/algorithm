@@ -79,18 +79,16 @@ struct BilinearTransform {
 
 template <typename T>
 void BilinearTransform<T>::SToZ(SubType fs, const T& s_pole, T& z_pole) {
-  static_assert(
-      std::abs(2 * fs - s_pole) > std::numeric_limits<SubType>::epsilon(),
-      "Division by zero for SToZ");
+  if (std::abs(2 * fs - s_pole) <= std::numeric_limits<SubType>::epsilon())
+    throw std::invalid_argument{"Division by zero for SToZ"};
   T scale_pole = s_pole / (2 * fs);
   z_pole = (T(1) + scale_pole) / (T(1) - scale_pole);
 }
 
 template <typename T>
 void BilinearTransform<T>::ZToS(SubType fs, const T& z_pole, T& s_pole) {
-  static_assert(
-      std::abs(z_pole + T(1)) > std::numeric_limits<SubType>::epsilon(),
-      "Division by zero for ZToS");
+  if (std::abs(z_pole + T(1)) <= std::numeric_limits<SubType>::epsilon())
+    throw std::invalid_argument{"Division by zero for ZToS"};
   T z_pole_inv = T(1) / z_pole;
   s_pole = 2 * fs * (T(1) - z_pole_inv) / (T(1) + z_pole_inv);
 }
