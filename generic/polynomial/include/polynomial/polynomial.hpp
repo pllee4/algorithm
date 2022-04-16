@@ -16,12 +16,12 @@ namespace pllee4::generic {
 
 template <typename T>
 struct Polynomial {
-  static vectX_t<T> GetPolyCoeffFromRoots(const vectX_t<T>& roots);
+  static VectorXt<T> GetPolyCoeffFromRoots(const VectorXt<T>& roots);
 };
 
 template <typename T>
-vectX_t<T> Polynomial<T>::GetPolyCoeffFromRoots(const vectX_t<T>& roots) {
-  vectX_t<T> coeffs = vectX_t<T>::Zero(roots.size() + 1);
+VectorXt<T> Polynomial<T>::GetPolyCoeffFromRoots(const VectorXt<T>& roots) {
+  VectorXt<T> coeffs = VectorXt<T>::Zero(roots.size() + 1);
   coeffs(0) = T(1);
   for (Eigen::Index i = 0; i < roots.size(); ++i) {
     for (Eigen::Index k = i + 1; k > 0; --k) {

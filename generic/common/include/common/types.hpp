@@ -2,7 +2,10 @@
  * types.hpp
  *
  * Created on: Apr 16, 2022 11:30
- * Description:
+ * Description: Common types
+ *
+ * Reference:
+ * https://eigen.tuxfamily.org/dox/group__matrixtypedefs.html
  *
  * Copyright (c) 2022 Pin Loon Lee (pllee4)
  */
@@ -14,7 +17,7 @@
 
 namespace pllee4::generic {
 template <typename T>
-using vectX_t = Eigen::Matrix<T, Eigen::Dynamic, 1>; /*!< Eigen column-vector */
-}
+using VectorXt = Eigen::Matrix<T, Eigen::Dynamic, 1>;
+}  // namespace pllee4::generic
 
 #endif /* TYPES_HPP */

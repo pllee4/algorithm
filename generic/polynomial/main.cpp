@@ -14,8 +14,8 @@
 using namespace pllee4::generic;
 
 int main(int argc, char** argv) {
-  vectX_t<float> roots = (vectX_t<float>(2) << 2, 3).finished();
-  vectX_t<float> polycoeff = Polynomial<float>::GetPolyCoeffFromRoots(roots);
+  VectorXt<float> roots = (VectorXt<float>(2) << 2, 3).finished();
+  VectorXt<float> polycoeff = Polynomial<float>::GetPolyCoeffFromRoots(roots);
   for (int i = 0; i < polycoeff.size(); ++i) {
     std::cout << polycoeff(i) << std::endl;
   }
