@@ -18,6 +18,10 @@
 namespace pllee4::generic {
 template <typename T>
 using VectorXt = Eigen::Matrix<T, Eigen::Dynamic, 1>;
+
+template <typename T>
+using VectorXct = VectorXt<std::complex<T>>;
+
 }  // namespace pllee4::generic
 
 #endif /* TYPES_HPP */
