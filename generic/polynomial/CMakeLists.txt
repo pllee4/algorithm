@@ -1,7 +1,6 @@
-find_package(Eigen3 REQUIRED)
 # Polynomial as library target
 add_library(polynomial INTERFACE)
-target_link_libraries(polynomial INTERFACE Eigen3::Eigen)
+target_link_libraries(polynomial INTERFACE common)
 target_include_directories(polynomial INTERFACE
 $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 

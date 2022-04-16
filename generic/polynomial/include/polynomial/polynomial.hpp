@@ -10,12 +10,9 @@
 #ifndef POLYNOMIAL_HPP
 #define POLYNOMIAL_HPP
 
-#include <Eigen/Core>
+#include "common/types.hpp"
 
 namespace pllee4::generic {
-
-template <typename T>
-using vectX_t = Eigen::Matrix<T, Eigen::Dynamic, 1>; /*!< Eigen column-vector */
 
 template <typename T>
 struct Polynomial {
