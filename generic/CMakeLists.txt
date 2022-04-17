@@ -1,2 +1,3 @@
 add_subdirectory(common)
+add_subdirectory(digital_filter)
 add_subdirectory(polynomial)
