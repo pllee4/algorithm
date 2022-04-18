@@ -23,3 +23,14 @@ TEST(BilinearTransform, DivisionByZero) {
   EXPECT_THROW(BilinearTransform<float>::ZToS(1, z_pole, s_pole),
                std::invalid_argument);
 }
+
+TEST(BilinearTransform, Transform) {
+  float s_pole = 1.0;
+  float z_pole = 0.0;
+  BilinearTransform<float>::SToZ(1, s_pole, z_pole);
+  EXPECT_FLOAT_EQ(z_pole, 3.0);
+  z_pole = 2.0;
+  s_pole = 0.0;
+  BilinearTransform<float>::ZToS(1, z_pole, s_pole);
+  EXPECT_FLOAT_EQ(s_pole, 2.0/3.0);
+}
