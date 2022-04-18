@@ -140,10 +140,6 @@ double AStar::ComputeH(const Coordinate &curr, const Coordinate &dest) const {
   auto dy = curr.y - dest.y;
   double h;
   switch (motion_constraint_type_) {
-    case MotionConstraintType::CARDINAL_MOTION:
-      // Manhattan
-      h = static_cast<double>(abs(dx) + abs(dy));
-      break;
     case MotionConstraintType::CARDINAL_ORDINAL_MOTION:
       // Diagonal
       h = std::max(abs(dx), abs(dy));
@@ -152,6 +148,7 @@ double AStar::ComputeH(const Coordinate &curr, const Coordinate &dest) const {
       // Euclidean
       h = sqrt(dx * dx + dy * dy);
       break;
+    case MotionConstraintType::CARDINAL_MOTION:
     default:
       // Manhattan
       h = static_cast<double>(abs(dx) + abs(dy));

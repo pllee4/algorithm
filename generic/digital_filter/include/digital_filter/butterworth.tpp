@@ -116,10 +116,9 @@ std::complex<T> Butterworth<T>::GetAnalogPoles(int k, T analog_fc) {
 
   // scale s-plane
   switch (filter_type_) {
-    case FilterType::kLowPass:
-      return T(2) * pi<T> * analog_fc * analog_pole;
     case FilterType::kHighPass:
       return T(2) * pi<T> * analog_fc / analog_pole;
+    case FilterType::kLowPass:
     default:
       return T(2) * pi<T> * analog_fc * analog_pole;
   }
@@ -138,7 +137,7 @@ void Butterworth<T>::ComputeGainAndNormalize(VectorXt<T> &a_coeff,
         sum_b += b_coeff(i) * std::pow(-1, i);
       }
       break;
-    // case FilterType::kBandPass: {
+      // case FilterType::kBandPass: {
       // std::complex<T> complex_a(a_coeff(0));
       // std::complex<T> complex_b(b_coeff(0));
 
@@ -161,7 +160,6 @@ void Butterworth<T>::ComputeGainAndNormalize(VectorXt<T> &a_coeff,
   b_coeff *= K;
 
   T a0 = a_coeff(0);
-
   if (std::abs(a0 - T(1)) < std::numeric_limits<T>::epsilon()) {
   } else {
     a_coeff /= a0;
