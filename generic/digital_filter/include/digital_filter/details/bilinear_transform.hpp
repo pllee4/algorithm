@@ -69,7 +69,7 @@ using sub_type_t = typename sub_type<T, is_complex<T>::value>::type;
 template <typename T>
 struct BilinearTransform {
   using SubType = sub_type_t<T>;
-  static_assert(std::is_floating_point<SubType>::value,
+  static_assert(std::is_floating_point_v<SubType>,
                 "Only floating point types (real and complex) is accepted for "
                 "BilinearTransform.");
 
