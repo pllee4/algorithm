@@ -35,7 +35,6 @@ class Butterworth {
     // kBandPass,
   };
 
- public:
   /**
    * @brief Find Butterworth Order
    *        Currently only support low and high pass
@@ -48,7 +47,6 @@ class Butterworth {
    */
   static std::pair<int, T> ButtOrd(T wpass, T wstop, T apass, T astop);
 
- public:
   /**
    * @brief Construct a new Butterworth object
    *
