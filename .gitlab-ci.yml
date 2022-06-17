@@ -1,0 +1,61 @@
+stages:
+  - build
+  - deploy
+
+bionic-build:
+  stage: build
+  image: pllee4/ubuntu-ci:18.04
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+  before_script:
+    - apt-get install -y libeigen3-dev
+  script:
+    - mkdir build && cd build
+    - cmake .. 
+    - cmake --build .
+
+bionic-staging:
+  stage: deploy
+  only:    
+    - master
+  image: pllee4/ubuntu-ci:18.04
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+  before_script:
+    - apt-get install -y libeigen3-dev
+    - conan remote add gitlab https://gitlab.com/api/v4/packages/conan
+  script:
+    # build conan package
+    - conan create . pinloon+public+algorithm/devel
+    - CONAN_LOGIN_USERNAME=ci_user CONAN_PASSWORD=${CI_JOB_TOKEN} conan upload algorithm/0.1.0@pinloon+public+algorithm/devel --all --remote=gitlab
+  dependencies:
+    - bionic-build
+
+focal-build:
+  stage: build
+  image: pllee4/ubuntu-ci:20.04
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+  before_script:
+    - apt-get install -y libeigen3-dev
+  script:
+    - mkdir build && cd build
+    - cmake .. 
+    - cmake --build .
+
+focal-staging:
+  stage: deploy
+  only:    
+    - master
+  image: pllee4/ubuntu-ci:20.04
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+  before_script:
+    - apt-get install -y libeigen3-dev
+    - conan remote add gitlab https://gitlab.com/api/v4/packages/conan
+  script:
+    # build conan package
+    - conan create . pinloon+public+algorithm/devel
+    - CONAN_LOGIN_USERNAME=ci_user CONAN_PASSWORD=${CI_JOB_TOKEN} conan upload algorithm/0.1.0@pinloon+public+algorithm/devel --all --remote=gitlab
+  dependencies:
+    - focal-build
