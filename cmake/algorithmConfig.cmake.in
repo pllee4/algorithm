@@ -1,0 +1,4 @@
+find_package(Eigen3 REQUIRED)
+find_package(PkgConfig REQUIRED)
+
+include("${CMAKE_CURRENT_LIST_DIR}/algorithmTargets.cmake")
