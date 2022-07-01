@@ -56,8 +56,7 @@ if(ALGO_BUILD_TEST)
     add_subdirectory(third_party)
 endif()
 
-add_subdirectory(generic)
-add_subdirectory(robotics)
+add_subdirectory(src)
 
 set(GENERIC_MODULES common digital_filter polynomial)
 set(ROBOTICS_MODULES astar dijikstra)
@@ -103,8 +102,8 @@ install(EXPORT algorithmTargets
         NAMESPACE pllee4::
         DESTINATION lib/cmake/algorithm)
 
-install(DIRECTORY generic robotics
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/algorithm)
+install(DIRECTORY include/algorithm
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 include(CMakePackageConfigHelpers)
 configure_package_config_file(
