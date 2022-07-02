@@ -64,7 +64,7 @@ jobs:
         --define sonar.organization=pllee4
         --define sonar.projectName=algorithm
         --define sonar.projectKey=algorithm
-        --define sonar.sources=robotics,generic
+        --define sonar.sources=src,include
         --define sonar.cfamily.gcov.reportsPath=.
         --define sonar.cfamily.cache.enabled=false
         --define sonar.cfamily.threads=2
