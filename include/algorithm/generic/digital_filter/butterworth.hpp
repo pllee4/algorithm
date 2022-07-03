@@ -72,6 +72,22 @@ class Butterworth {
    */
   VectorXt<T> GetBCoefficients() const { return b_coeff_; }
 
+
+  /**
+   * @brief Step filter
+   * 
+   * @param data input data
+   * @return T 
+   */
+  T StepFilter(const T& data);
+
+  /**
+   * @brief Set the Cutoff Frequency object
+   * 
+   * @param fc cutoff frequency
+   */
+  void SetCutoffFrequency(const T& fc);
+
  private:
   int order_;
   T fs_;
@@ -79,6 +95,8 @@ class Butterworth {
   VectorXt<T> a_coeff_;  // poles
   VectorXt<T> b_coeff_;  // zeros
 
+  VectorXt<T> input_;  // input
+  VectorXt<T> filtered_output_;  // filter output
   /**
    * @brief Get analog zeros
    *

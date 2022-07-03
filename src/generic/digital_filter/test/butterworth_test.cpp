@@ -8,7 +8,7 @@
  */
 
 #include "algorithm/generic/digital_filter/butterworth.hpp"
-#include <iostream>
+
 #include "gtest/gtest.h"
 
 using namespace pllee4::generic;
@@ -73,16 +73,27 @@ TEST(Butterworth, ButterHighPass) {
     EXPECT_NEAR(b_coeff_res(i), b_coeffs(i), 0.000001);
 }
 
-TEST(Butterworth, Test) {
+TEST(Butterworth, StepFilter) {
   Butterworth<float> butter(1, 5, 1000,
                             Butterworth<float>::FilterType::kLowPass);
+  float expected_values[] = {0.00773315, 0.0229602, 0.0377163, 0.052016,
+                             0.0658733};
+  float filtered_signal;
+  for (int i = 0; i < 5; ++i) {
+    filtered_signal = butter.StepFilter(0.5);
+    EXPECT_NEAR(filtered_signal, expected_values[i], 0.001);
+  }
+}
 
-  auto a_coeff_res = butter.GetACoefficients();
-  auto b_coeff_res = butter.GetBCoefficients();
-
-  for (Eigen::Index i = 0; i < a_coeff_res.size(); ++i)
-    std::cout << a_coeff_res(i) << " " << std::endl;
-  std::cout << "b " << std::endl;
-  for (Eigen::Index i = 0; i < b_coeff_res.size(); ++i)
-    std::cout << b_coeff_res(i) << " " << std::endl;
+TEST(Butterworth, SetCutoffFrequency) {
+  Butterworth<float> butter(1, 10, 1000,
+                            Butterworth<float>::FilterType::kLowPass);
+  butter.SetCutoffFrequency(5);
+  float expected_values[] = {0.00773315, 0.0229602, 0.0377163, 0.052016,
+                             0.0658733};
+  float filtered_signal;
+  for (int i = 0; i < 5; ++i) {
+    filtered_signal = butter.StepFilter(0.5);
+    EXPECT_NEAR(filtered_signal, expected_values[i], 0.001);
+  }
 }

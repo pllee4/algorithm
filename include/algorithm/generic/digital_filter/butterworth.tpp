@@ -82,6 +82,30 @@ template <typename T>
 Butterworth<T>::Butterworth(int order, T fc, T fs, FilterType filter_type)
     : order_(order), fs_(fs), filter_type_(filter_type) {
   ComputeDigitalFilter(fc);
+  input_.resize(order_ + 1);
+  filtered_output_.resize(order_ + 1);
+  input_(0) = T();
+  filtered_output_(0) = T();
+}
+
+template <typename T>
+T Butterworth<T>::StepFilter(const T &data) {
+  for (Eigen::Index i = input_.size() - 1; i > 0; --i)
+    input_(i) = input_(i - 1);
+
+  for (Eigen::Index i = filtered_output_.size() - 1; i > 0; --i)
+    filtered_output_(i) = filtered_output_(i - 1);
+
+  input_(0) = data;
+  // to avoid normalized coefficient for y[n] to be included
+  filtered_output_(0) = 0;
+  filtered_output_(0) = b_coeff_.dot(input_) - a_coeff_.dot(filtered_output_);
+  return filtered_output_(0);
+}
+
+template <typename T>
+void Butterworth<T>::SetCutoffFrequency(const T &fc) {
+  ComputeDigitalFilter(fc);
 }
 
 template <typename T>
