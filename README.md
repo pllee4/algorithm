@@ -14,3 +14,5 @@ $ make -j
 
 # Note
 - For visualization, please refer to repo [here](https://github.com/pllee4/robot-visualizer.git)
+  
+  ![app_search_algo](https://user-images.githubusercontent.com/42335542/180598459-32addc9a-2517-46e8-93d4-26fd1d49113b.gif)
