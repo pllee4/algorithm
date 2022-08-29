@@ -44,16 +44,17 @@ bool AStar::SetOccupancyGrid(const std::vector<Coordinate> &occupancy_grid,
   map_ = map;
   return true;
 }
+
 std::vector<Coordinate> AStar::GetPath(const Coordinate &dest) {
   std::vector<Coordinate> path;
   auto [x, y] = dest;
   while (!(map_[x][y].parent_coordinate.x == x &&
            map_[x][y].parent_coordinate.y == y)) {
-    path.push_back({x, y});
-    auto [temp_x, temp_y] = map_[x][y].parent_coordinate;
+    path.emplace_back(Coordinate{x, y});
+    const auto [temp_x, temp_y] = map_[x][y].parent_coordinate;
     std::tie(x, y) = std::pair(temp_x, temp_y);
   }
-  path.push_back({x, y});
+  path.emplace_back(Coordinate{x, y});
   std::reverse(path.begin(), path.end());
   return path;
 }
@@ -78,10 +79,10 @@ bool AStar::FindPath(const Coordinate &src, const Coordinate &dest) {
   bool found_path{false};
 
   while (!traverse_path.empty()) {
-    auto travelled_path = traverse_path.begin();
+    const auto travelled_path = traverse_path.begin();
     traverse_path.erase(traverse_path.begin());
 
-    auto [i, j] = travelled_path->second;
+    const auto [i, j] = travelled_path->second;
 
     // mark node as visited
     visited[i][j] = true;
@@ -101,11 +102,11 @@ bool AStar::FindPath(const Coordinate &src, const Coordinate &dest) {
       // not occupied
       if (!map_[coordinate.x][coordinate.y].occupied &&
           !visited[coordinate.x][coordinate.y]) {
-        auto dist_travelled =
+        const auto dist_travelled =
             sqrt(abs(motion_constraint_.dx[k]) + abs(motion_constraint_.dy[k]));
-        auto new_g = map_[i][j].g + dist_travelled;
-        auto new_h = ComputeH(coordinate, dest);
-        auto new_f = new_g + new_h;
+        const auto new_g = map_[i][j].g + dist_travelled;
+        const auto new_h = ComputeH(coordinate, dest);
+        const auto new_f = new_g + new_h;
 
         if (map_[coordinate.x][coordinate.y].f ==
                 std::numeric_limits<decltype(Cell::f)>::max() ||
@@ -124,7 +125,7 @@ bool AStar::FindPath(const Coordinate &src, const Coordinate &dest) {
     }
 
     if (found_path) {
-      auto path = GetPath(dest);
+      const auto path = GetPath(dest);
       for (const auto &[x, y] : path) {
         std::cout << "(" << x << ", " << y << ")->" << std::endl;
       }
@@ -136,8 +137,8 @@ bool AStar::FindPath(const Coordinate &src, const Coordinate &dest) {
 }
 
 double AStar::ComputeH(const Coordinate &curr, const Coordinate &dest) const {
-  auto dx = curr.x - dest.x;
-  auto dy = curr.y - dest.y;
+  const auto dx = curr.x - dest.x;
+  const auto dy = curr.y - dest.y;
   double h;
   switch (motion_constraint_type_) {
     case MotionConstraintType::CARDINAL_ORDINAL_MOTION:
