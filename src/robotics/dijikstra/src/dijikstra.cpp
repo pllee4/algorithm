@@ -48,11 +48,11 @@ std::vector<Coordinate> Dijikstra::GetPath(const Coordinate& dest) {
   auto [x, y] = dest;
   while (!(map_[x][y].parent_coordinate.x == x &&
            map_[x][y].parent_coordinate.y == y)) {
-    path.push_back({x, y});
-    auto [temp_x, temp_y] = map_[x][y].parent_coordinate;
+    path.emplace_back(Coordinate{x, y});
+    const auto [temp_x, temp_y] = map_[x][y].parent_coordinate;
     std::tie(x, y) = std::pair(temp_x, temp_y);
   }
-  path.push_back({x, y});
+  path.emplace_back(Coordinate{x, y});
   std::reverse(path.begin(), path.end());
   return path;
 }
@@ -75,10 +75,10 @@ bool Dijikstra::FindPath(const Coordinate& src, const Coordinate& dest) {
   bool found_path{false};
 
   while (!traverse_path.empty()) {
-    auto travelled_path = traverse_path.begin();
+    const auto travelled_path = traverse_path.begin();
     traverse_path.erase(traverse_path.begin());
 
-    auto [i, j] = travelled_path->second;
+    const auto [i, j] = travelled_path->second;
 
     // mark node as visited
     visited[i][j] = true;
@@ -98,9 +98,9 @@ bool Dijikstra::FindPath(const Coordinate& src, const Coordinate& dest) {
       // not occupied
       if (!map_[coordinate.x][coordinate.y].occupied &&
           !visited[coordinate.x][coordinate.y]) {
-        auto dist_travelled =
+        const auto dist_travelled =
             sqrt(abs(motion_constraint_.dx[k]) + abs(motion_constraint_.dy[k]));
-        auto new_cost = map_[i][j].cost + dist_travelled;
+        const auto new_cost = map_[i][j].cost + dist_travelled;
 
         if (map_[coordinate.x][coordinate.y].cost ==
                 std::numeric_limits<decltype(Cell::cost)>::max() ||
@@ -117,7 +117,7 @@ bool Dijikstra::FindPath(const Coordinate& src, const Coordinate& dest) {
       }
     }
     if (found_path) {
-      auto path = GetPath(dest);
+      const auto path = GetPath(dest);
       for (const auto& [x, y] : path) {
         std::cout << "(" << x << ", " << y << ")->" << std::endl;
       }
