@@ -14,38 +14,14 @@
 #include <limits>
 #include <vector>
 
+#include "algorithm/robotics/shared_type/data_type.hpp"
+#include "algorithm/robotics/shared_type/motion_constraint.hpp"
+
 namespace pllee4::graph {
-
-/**
- * @brief Coordinate
- *
- */
-struct Coordinate {
-  int x;
-  int y;
-  bool operator==(const Coordinate& other) const {
-    return (x == other.x && y == other.y);
-  }
-};
-
 /**
  * @brief
  *
  */
-struct Cell {
-  Coordinate parent_coordinate;
-  float cost{std::numeric_limits<float>::max()};
-  bool occupied{false};
-  bool operator==(const Cell& other) const {
-    return (parent_coordinate == other.parent_coordinate);
-  }
-};
-
-struct MotionConstraint {
-  std::vector<int> dx;
-  std::vector<int> dy;
-  size_t size() const { return dx.size(); }
-};
 
 /*
 y
@@ -58,6 +34,15 @@ y
 
 class Dijikstra {
  public:
+  struct Cell {
+    Coordinate parent_coordinate;
+    float cost{std::numeric_limits<float>::max()};
+    bool occupied{false};
+    bool operator==(const Cell& other) const {
+      return (parent_coordinate == other.parent_coordinate);
+    }
+  };
+
   explicit Dijikstra(const struct MotionConstraint& motion_constraint);
   ~Dijikstra() = default;
 

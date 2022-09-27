@@ -59,7 +59,7 @@ endif()
 add_subdirectory(src)
 
 set(GENERIC_MODULES common digital_filter polynomial)
-set(ROBOTICS_MODULES astar dijikstra)
+set(ROBOTICS_MODULES astar dijikstra shared_type)
 
 add_library(algorithm INTERFACE)
 target_link_libraries(algorithm INTERFACE ${GENERIC_MODULES} ${ROBOTICS_MODULES})
