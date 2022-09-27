@@ -1,2 +1,3 @@
 add_subdirectory(astar)
 add_subdirectory(dijikstra)
+add_subdirectory(shared_type)

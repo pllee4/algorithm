@@ -14,26 +14,10 @@
 #include <limits>
 #include <vector>
 
+#include "algorithm/robotics/shared_type/data_type.hpp"
+#include "algorithm/robotics/shared_type/motion_constraint.hpp"
+
 namespace pllee4::graph {
-
-/**
- * @brief Coordinate
- *
- */
-struct Coordinate {
-  int x;
-  int y;
-  bool operator==(const Coordinate &other) const {
-    return (x == other.x && y == other.y);
-  }
-};
-
-struct MotionConstraint {
-  std::vector<int> dx;
-  std::vector<int> dy;
-  size_t size() const { return dx.size(); }
-};
-
 class AStar {
  public:
   /**

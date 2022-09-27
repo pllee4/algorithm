@@ -1,5 +1,6 @@
 # Astar as library target
 add_library(astar STATIC src/astar.cpp)
+target_link_libraries(astar INTERFACE shared_type)
 target_include_directories(astar PUBLIC
 $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>)
 

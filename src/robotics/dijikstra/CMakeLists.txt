@@ -1,5 +1,6 @@
 # dijikstra as library target
 add_library(dijikstra STATIC src/dijikstra.cpp)
+target_link_libraries(dijikstra INTERFACE shared_type)
 target_include_directories(dijikstra PUBLIC
 $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>)
 
