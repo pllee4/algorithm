@@ -9,6 +9,8 @@
 
 #include "algorithm/robotics/bresenham/bresenham.hpp"
 
+#include <cstdlib>
+
 namespace pllee4::graph {
 LineGenerator::LineGenerator(Coordinate& start, Coordinate& end) {
   const auto dx = abs(end.x - start.x);
