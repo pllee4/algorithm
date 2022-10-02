@@ -27,7 +27,7 @@ bionic-staging:
   script:
     # build conan package
     - conan create . pinloon+public+algorithm/devel
-    - CONAN_LOGIN_USERNAME=ci_user CONAN_PASSWORD=${CI_JOB_TOKEN} conan upload algorithm/0.2.1@pinloon+public+algorithm/devel --all --remote=gitlab
+    - CONAN_LOGIN_USERNAME=ci_user CONAN_PASSWORD=${CI_JOB_TOKEN} conan upload algorithm/0.2.2@pinloon+public+algorithm/devel --all --remote=gitlab
   dependencies:
     - bionic-build
 
@@ -56,6 +56,6 @@ focal-staging:
   script:
     # build conan package
     - conan create . pinloon+public+algorithm/devel
-    - CONAN_LOGIN_USERNAME=ci_user CONAN_PASSWORD=${CI_JOB_TOKEN} conan upload algorithm/0.2.1@pinloon+public+algorithm/devel --all --remote=gitlab
+    - CONAN_LOGIN_USERNAME=ci_user CONAN_PASSWORD=${CI_JOB_TOKEN} conan upload algorithm/0.2.2@pinloon+public+algorithm/devel --all --remote=gitlab
   dependencies:
     - focal-build

@@ -2,7 +2,7 @@ from conans import ConanFile, CMake, tools
 
 class AlgorithmConan(ConanFile):
     name = "algorithm"
-    version = "0.2.1"
+    version = "0.2.2"
     license = "proprietary@pinloon"
     author = "Pin Loon Lee"
     url = "<Package recipe repository url here, for issues about the package>"
