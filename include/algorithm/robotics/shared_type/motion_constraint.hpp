@@ -12,6 +12,16 @@
 
 namespace pllee4::graph {
 /**
+ * @brief Type of motion constraint
+ * 
+ */
+enum class MotionConstraintType {
+  CARDINAL_MOTION,
+  CARDINAL_ORDINAL_MOTION,
+  ANY_MOTION,
+};
+
+/**
  * @brief MotionConstraint for x and y
  *
  */
