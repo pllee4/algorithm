@@ -10,12 +10,13 @@
 #ifndef ASTAR_VARIANT_HPP
 #define ASTAR_VARIANT_HPP
 
-#include <cmath>
 #include <functional>
 
-namespace pllee4::graph {
-using HeuristicFunc = std::function<double(int, int)>;
+#include "algorithm/robotics/astar_variant/astar_variant_base.hpp"
+#include "algorithm/robotics/astar_variant/heuristic.hpp"
+#include "algorithm/robotics/shared_type/motion_constraint.hpp"
 
+namespace pllee4::graph {
 /**
  * @brief Specification for variants of A*
  * f = w1 * g + w2 * h
@@ -50,59 +51,27 @@ constexpr AstarVariantSpecification GetAstarVariantSpecification(
  * @tparam w2
  */
 template <uint8_t w1, uint8_t w2>
-class AstarVariant {
+class AstarVariant : public AstarVariantBase {
  public:
-  // without heuristic_func
-  AstarVariant() = default;
+  explicit AstarVariant(const MotionConstraintType motion_constraint_type)
+      : motion_constraint_type_(motion_constraint_type),
+        heuristic_func_(GetHeuristic(motion_constraint_type)) {
+    SetMotionConstraint(GetMotionConstraint(motion_constraint_type));
+  }
 
-  // with heuristic_func
-  explicit AstarVariant(HeuristicFunc heuristic_func)
-      : heuristic_func_(heuristic_func),
-        specification_(GetAstarVariantSpecification<w1, w2>(heuristic_func)) {}
+  AstarVariant(const MotionConstraintType motion_constraint_type,
+               HeuristicFunc heuristic_func)
+      : motion_constraint_type_(motion_constraint_type),
+        heuristic_func_(heuristic_func) {
+    SetMotionConstraint(GetMotionConstraint(motion_constraint_type));
+  }
 
- public:
-  HeuristicFunc heuristic_func_{[](int, int) { return 0; }};
+ private:
+  MotionConstraintType motion_constraint_type_;
+  HeuristicFunc heuristic_func_;
   AstarVariantSpecification specification_{
       GetAstarVariantSpecification<w1, w2>(heuristic_func_)};
 };
-
-/**
- * @brief Details of heuristic function
- *
- */
-struct HeuristicFuncDetails {
-  enum class Type {
-    HEURISTIC_DIAGONAL,
-    HEURISTIC_EUCLIDEAN,
-    HEURISTIC_MANHATTAN,
-  };
-};
-
-/**
- * @brief Get the heuristic function
- *
- * @tparam type
- * @return constexpr HeuristicFunc
- */
-template <HeuristicFuncDetails::Type type>
-constexpr HeuristicFunc GetHeuristic() {
-  HeuristicFunc heuristic_func;
-  switch (type) {
-    case HeuristicFuncDetails::Type::HEURISTIC_DIAGONAL:
-      heuristic_func = [](int dx, int dy) {
-        return std::max(abs(dx), abs(dy));
-      };
-      break;
-    case HeuristicFuncDetails::Type::HEURISTIC_EUCLIDEAN:
-      heuristic_func = [](int dx, int dy) { return sqrt(dx * dx + dy * dy); };
-      break;
-    case HeuristicFuncDetails::Type::HEURISTIC_MANHATTAN:
-      heuristic_func = [](int dx, int dy) {
-        return static_cast<double>(abs(dx) + abs(dy));
-      };
-  }
-  return heuristic_func;
-}
 
 using Dijikstra = AstarVariant<1, 0>;
 using Astar = AstarVariant<1, 1>;
