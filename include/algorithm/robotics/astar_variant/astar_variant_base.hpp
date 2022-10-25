@@ -10,6 +10,10 @@
 #ifndef ASTAR_VARIANT_BASE_HPP
 #define ASTAR_VARIANT_BASE_HPP
 
+#include <memory>
+#include <set>
+
+#include "algorithm/robotics/astar_variant/map_storage.hpp"
 #include "algorithm/robotics/path_finder/path_finder_interface.hpp"
 #include "algorithm/robotics/shared_type/motion_constraint.hpp"
 
@@ -18,11 +22,12 @@ class AstarVariantBase : public PathFinderInterface {
  public:
   virtual ~AstarVariantBase() = default;
 
-  // Interface inherited
-  bool SetOccupiedGrid(const std::vector<Coordinate> &occupied_grid, int x_size,
-                       int y_size) override;
+  void SetMapStorageSize(const size_t x_size, const size_t y_size);
 
-  bool SetStartAndDestination(const Coordinate &src,
+  // Interface inherited
+  bool SetOccupiedGrid(const std::vector<Coordinate> &occupied_grid) override;
+
+  bool SetStartAndDestination(const Coordinate &start,
                               const Coordinate &dest) override;
 
   std::optional<std::vector<Coordinate>> StepOverPathFinding() override;
@@ -31,11 +36,18 @@ class AstarVariantBase : public PathFinderInterface {
   std::optional<std::vector<Coordinate>> GetPath() override;
 
  protected:
-  void SetMotionConstraint(MotionConstraint motion_constraint) {
-    motion_constraint_ = motion_constraint;
-  }
+  void SetMotionConstraint(MotionConstraint motion_constraint);
 
+ private:
   MotionConstraint motion_constraint_;
+  std::unique_ptr<MapStorage> map_storage_;
+
+  std::vector<std::vector<bool>> visited_map_;
+  std::set<std::pair<int, std::pair<int, int>>> traverse_path_;
+
+  Coordinate start_;
+  Coordinate dest_;
+  bool start_and_end_set_{false};
 };
 }  // namespace pllee4::graph
 #endif /* ASTAR_VARIANT_BASE_HPP */
