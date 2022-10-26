@@ -13,6 +13,7 @@
 #include <memory>
 #include <set>
 
+#include "algorithm/robotics/astar_variant/heuristic.hpp"
 #include "algorithm/robotics/astar_variant/map_storage.hpp"
 #include "algorithm/robotics/path_finder/path_finder_interface.hpp"
 #include "algorithm/robotics/shared_type/motion_constraint.hpp"
@@ -35,6 +36,9 @@ class AstarVariantBase : public PathFinderInterface {
 
   std::optional<std::vector<Coordinate>> GetPath() override;
 
+  // To be overridden by derived classes
+  virtual HeuristicFunc GetHeuristicFunc() = 0;
+
  protected:
   void SetMotionConstraint(MotionConstraint motion_constraint);
 
@@ -48,6 +52,7 @@ class AstarVariantBase : public PathFinderInterface {
   Coordinate start_;
   Coordinate dest_;
   bool start_and_end_set_{false};
+  bool found_path_{false};
 };
 }  // namespace pllee4::graph
 #endif /* ASTAR_VARIANT_BASE_HPP */

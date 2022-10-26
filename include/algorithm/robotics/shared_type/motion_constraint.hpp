@@ -10,6 +10,8 @@
 #ifndef MOTION_CONSTRAINT_HPP
 #define MOTION_CONSTRAINT_HPP
 
+#include <vector>
+
 namespace pllee4::graph {
 /**
  * @brief Type of motion constraint

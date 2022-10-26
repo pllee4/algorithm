@@ -13,7 +13,6 @@
 #include <functional>
 
 #include "algorithm/robotics/astar_variant/astar_variant_base.hpp"
-#include "algorithm/robotics/astar_variant/heuristic.hpp"
 #include "algorithm/robotics/shared_type/motion_constraint.hpp"
 
 namespace pllee4::graph {
@@ -65,6 +64,8 @@ class AstarVariant : public AstarVariantBase {
         heuristic_func_(heuristic_func) {
     SetMotionConstraint(GetMotionConstraint(motion_constraint_type));
   }
+
+  HeuristicFunc GetHeuristicFunc() override { return heuristic_func_; }
 
  private:
   MotionConstraintType motion_constraint_type_;

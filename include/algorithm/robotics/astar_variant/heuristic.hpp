@@ -11,6 +11,7 @@
 #define HEURISTIC_HPP
 
 #include <cmath>
+#include <functional>
 
 #include "algorithm/robotics/shared_type/motion_constraint.hpp"
 
@@ -63,7 +64,7 @@ constexpr HeuristicFunc GetHeuristic() {
  * @param motion_type
  * @return HeuristicFunc
  */
-HeuristicFunc GetHeuristic(const MotionConstraintType motion_type) {
+inline HeuristicFunc GetHeuristic(const MotionConstraintType motion_type) {
   HeuristicFunc heuristic_func;
   switch (motion_type) {
     case MotionConstraintType::CARDINAL_ORDINAL_MOTION:
