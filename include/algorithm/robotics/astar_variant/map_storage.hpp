@@ -40,11 +40,11 @@ class MapStorage {
   };
 
  public:
-  MapStorage(const size_t x_size, const size_t y_size) {
-    std::vector<std::vector<Cell>> map(x_size, std::vector<Cell>(y_size));
+  MapStorage(const size_t x_size, const size_t y_size)
+      : map_x_size_(x_size), map_y_size_(y_size) {
+    std::vector<std::vector<Cell>> map(map_x_size_,
+                                       std::vector<Cell>(map_y_size_));
     map_ = map;
-    map_x_size_ = x_size;
-    map_y_size_ = y_size;
   }
 
   bool Contains(const Coordinate &coordinate) const {
@@ -53,6 +53,17 @@ class MapStorage {
   }
 
   std::vector<std::vector<Cell>> &GetMap() { return map_; }
+
+  void ResetCost() {
+    for (auto &row : map_) {
+      for (auto &cell : row) {
+        cell.parent_coordinate = {0, 0};
+        cell.f = std::numeric_limits<CostDataType>::max();
+        cell.g = std::numeric_limits<CostDataType>::max();
+        cell.h = std::numeric_limits<CostDataType>::max();
+      }
+    }
+  }
 
  private:
   std::vector<std::vector<Cell>> map_;
