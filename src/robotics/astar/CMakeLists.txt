@@ -1,7 +1,7 @@
 # Astar as library target
-add_library(astar STATIC src/astar.cpp)
-target_link_libraries(astar INTERFACE shared_type)
-target_include_directories(astar PUBLIC
+add_library(astar INTERFACE)
+target_link_libraries(astar INTERFACE astar_variant)
+target_include_directories(astar INTERFACE
 $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>)
 
 if(ALGO_BUILD_TEST)

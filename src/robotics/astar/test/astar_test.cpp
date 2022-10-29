@@ -11,21 +11,22 @@
 
 #include "gtest/gtest.h"
 
-using namespace pllee4;
-using namespace graph;
+using namespace pllee4::graph;
 
-TEST(AStar, InvalidSetOccupancyGrid) {
-  AStar astar{AStar::MotionConstraintType::CARDINAL_MOTION};
-  EXPECT_FALSE(astar.SetOccupancyGrid({{1, 6}}, 2, 6));
+TEST(Astar, InvalidSetOccupiedGrid) {
+  Astar astar{MotionConstraintType::CARDINAL_MOTION};
+  astar.SetMapStorageSize(3, 3);
+  EXPECT_FALSE(astar.SetOccupiedGrid({{1, 6}}));
 }
 
-TEST(AStar, ValidSetOccupancyGrid) {
-  AStar astar{AStar::MotionConstraintType::CARDINAL_MOTION};
-  EXPECT_TRUE(astar.SetOccupancyGrid({{1, 6}}, 2, 7));
+TEST(Astar, ValidSetOccupanciedGrid) {
+  Astar astar{MotionConstraintType::CARDINAL_MOTION};
+  astar.SetMapStorageSize(2, 7);
+  EXPECT_TRUE(astar.SetOccupiedGrid({{1, 6}}));
 }
 
-TEST(AStar, FailedToFindPath) {
-  AStar astar{AStar::MotionConstraintType::CARDINAL_MOTION};
+TEST(Astar, FailedToFindPath) {
+  Astar astar{MotionConstraintType::CARDINAL_MOTION};
 
   /**
    * s = start, e = end, x = occupied
@@ -34,13 +35,31 @@ TEST(AStar, FailedToFindPath) {
    *  |   |   |   |
    */
 
-  astar.SetOccupancyGrid({{1, 2}, {1, 1}}, 3, 3);
-  EXPECT_FALSE(astar.FindPath({0, 0}, {4, 4}));
-  EXPECT_FALSE(astar.FindPath({4, 4}, {2, 2}));
+  astar.SetMapStorageSize(3, 3);
+  astar.SetOccupiedGrid({{1, 2}, {1, 1}});
+  astar.SetStartAndDestination({0, 0}, {4, 4});
+  EXPECT_FALSE(astar.FindPath());
+  astar.SetStartAndDestination({4, 4}, {2, 2});
+  EXPECT_FALSE(astar.FindPath());
 }
 
-TEST(AStar, FindPath) {
-  AStar astar{AStar::MotionConstraintType::CARDINAL_MOTION};
+TEST(Astar, FindPath) {
+  Astar astar{MotionConstraintType::CARDINAL_MOTION};
+
+  /**
+   * s = start, e = end, x = occupied
+   *  |s  | x | e |
+   *  |   | x |   |
+   *  |   |   |   |
+   */
+  astar.SetMapStorageSize(3, 3);
+  astar.SetOccupiedGrid({{1, 2}, {1, 1}});
+  astar.SetStartAndDestination({0, 2}, {2, 2});
+  EXPECT_TRUE(astar.FindPath());
+}
+
+TEST(Astar, GetPath) {
+  Astar astar{MotionConstraintType::CARDINAL_MOTION};
 
   /**
    * s = start, e = end, x = occupied
@@ -49,23 +68,12 @@ TEST(AStar, FindPath) {
    *  |   |   |   |
    */
 
-  astar.SetOccupancyGrid({{1, 2}, {1, 1}}, 3, 3);
-  EXPECT_TRUE(astar.FindPath({0, 2}, {2, 2}));
-}
-
-TEST(AStar, GetPath) {
-  AStar astar{AStar::MotionConstraintType::CARDINAL_MOTION};
-
-  /**
-   * s = start, e = end, x = occupied
-   *  |s  | x | e |
-   *  |   | x |   |
-   *  |   |   |   |
-   */
-
-  astar.SetOccupancyGrid({{1, 2}, {1, 1}}, 3, 3);
-  astar.FindPath({0, 2}, {2, 2});
-  auto path = astar.GetPath({2, 2});
+  astar.SetMapStorageSize(3, 3);
+  astar.SetOccupiedGrid({{1, 2}, {1, 1}});
+  astar.SetStartAndDestination({0, 2}, {2, 2});
+  astar.FindPath();
+  EXPECT_TRUE(astar.GetPath().has_value());
+  const auto path = astar.GetPath().value();
 
   std::vector<Coordinate> expected = {{0, 2}, {0, 1}, {0, 0}, {1, 0},
                                       {2, 0}, {2, 1}, {2, 2}};
@@ -73,8 +81,8 @@ TEST(AStar, GetPath) {
                          std::end(expected)));
 }
 
-TEST(AStar, GetPath8Dir) {
-  AStar astar{AStar::MotionConstraintType::CARDINAL_ORDINAL_MOTION};
+TEST(Astar, GetPath8Dir) {
+  Astar astar{MotionConstraintType::CARDINAL_ORDINAL_MOTION};
 
   /**
    * s = start, e = end, x = occupied
@@ -83,17 +91,20 @@ TEST(AStar, GetPath8Dir) {
    *  |   |   |   |
    */
 
-  astar.SetOccupancyGrid({{1, 2}, {1, 1}}, 3, 3);
-  astar.FindPath({0, 2}, {2, 2});
-  auto path = astar.GetPath({2, 2});
+  astar.SetMapStorageSize(3, 3);
+  astar.SetOccupiedGrid({{1, 2}, {1, 1}});
+  astar.SetStartAndDestination({0, 2}, {2, 2});
+  astar.FindPath();
+  EXPECT_TRUE(astar.GetPath().has_value());
+  const auto path = astar.GetPath().value();
 
   std::vector<Coordinate> expected = {{0, 2}, {0, 1}, {1, 0}, {2, 1}, {2, 2}};
   EXPECT_TRUE(std::equal(std::begin(path), std::end(path), std::begin(expected),
                          std::end(expected)));
 }
 
-TEST(AStar, GetPathWithRevisit) {
-  AStar astar{AStar::MotionConstraintType::CARDINAL_MOTION};
+TEST(Astar, GetPathWithRevisit) {
+  Astar astar{MotionConstraintType::CARDINAL_MOTION};
 
   /**
    * s = start, e = end, x = occupied
@@ -103,17 +114,20 @@ TEST(AStar, GetPathWithRevisit) {
    *  |   |   | e |
    */
 
-  astar.SetOccupancyGrid({{1, 2}}, 3, 4);
-  astar.FindPath({0, 2}, {2, 0});
-  auto path = astar.GetPath({2, 0});
+  astar.SetMapStorageSize(3, 4);
+  astar.SetOccupiedGrid({{1, 2}});
+  astar.SetStartAndDestination({0, 2}, {2, 0});
+  astar.FindPath();
+  EXPECT_TRUE(astar.GetPath().has_value());
+  const auto path = astar.GetPath().value();
 
   std::vector<Coordinate> expected = {{0, 2}, {0, 1}, {0, 0}, {1, 0}, {2, 0}};
   EXPECT_TRUE(std::equal(std::begin(path), std::end(path), std::begin(expected),
                          std::end(expected)));
 }
 
-TEST(AStar, GetPath8DirWithRevisit) {
-  AStar astar{AStar::MotionConstraintType::CARDINAL_ORDINAL_MOTION};
+TEST(Astar, GetPath8DirWithRevisit) {
+  Astar astar{MotionConstraintType::CARDINAL_ORDINAL_MOTION};
 
   /**
    * s = start, e = end, x = occupied
@@ -123,17 +137,20 @@ TEST(AStar, GetPath8DirWithRevisit) {
    *  |   |   | e |
    */
 
-  astar.SetOccupancyGrid({{1, 2}}, 3, 4);
-  astar.FindPath({0, 2}, {2, 0});
-  auto path = astar.GetPath({2, 0});
+  astar.SetMapStorageSize(3, 4);
+  astar.SetOccupiedGrid({{1, 2}});
+  astar.SetStartAndDestination({0, 2}, {2, 0});
+  astar.FindPath();
+  EXPECT_TRUE(astar.GetPath().has_value());
+  const auto path = astar.GetPath().value();
 
   std::vector<Coordinate> expected = {{0, 2}, {1, 1}, {2, 0}};
   EXPECT_TRUE(std::equal(std::begin(path), std::end(path), std::begin(expected),
                          std::end(expected)));
 }
 
-TEST(AStar, GetPath8DirWithRevisitWithAnyMotion) {
-  AStar astar{AStar::MotionConstraintType::ANY_MOTION};
+TEST(Astar, GetPath8DirWithRevisitWithAnyMotion) {
+  Astar astar{MotionConstraintType::ANY_MOTION};
 
   /**
    * s = start, e = end, x = occupied
@@ -143,9 +160,12 @@ TEST(AStar, GetPath8DirWithRevisitWithAnyMotion) {
    *  |   |   | e |
    */
 
-  astar.SetOccupancyGrid({{1, 2}}, 3, 4);
-  astar.FindPath({0, 2}, {2, 0});
-  auto path = astar.GetPath({2, 0});
+  astar.SetMapStorageSize(3, 4);
+  astar.SetOccupiedGrid({{1, 2}});
+  astar.SetStartAndDestination({0, 2}, {2, 0});
+  astar.FindPath();
+  EXPECT_TRUE(astar.GetPath().has_value());
+  const auto path = astar.GetPath().value();
 
   std::vector<Coordinate> expected = {{0, 2}, {1, 1}, {2, 0}};
   EXPECT_TRUE(std::equal(std::begin(path), std::end(path), std::begin(expected),

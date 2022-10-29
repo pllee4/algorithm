@@ -40,6 +40,14 @@ class MapStorage {
   };
 
  public:
+  /*
+  y
+  ^
+  |
+  |
+  |
+  |_________>x
+  */
   MapStorage(const size_t x_size, const size_t y_size)
       : map_x_size_(x_size), map_y_size_(y_size) {
     std::vector<std::vector<Cell>> map(map_x_size_,
