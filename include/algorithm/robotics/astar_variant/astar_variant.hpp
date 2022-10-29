@@ -63,10 +63,5 @@ class AstarVariant : public AstarVariantBase {
   AstarVariantSpecification specification_{
       GetAstarVariantSpecification<w1, w2>(heuristic_func_)};
 };
-using Dijikstra = AstarVariant<1, 0>;
-using Astar = AstarVariant<1, 1>;
-using BestFirstSearch = AstarVariant<0, 1>;
-using WeightedAstar = AstarVariant<1, 10>;
-
 }  // namespace pllee4::graph
 #endif /* ASTAR_VARIANT_HPP */
