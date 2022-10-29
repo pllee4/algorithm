@@ -15,6 +15,7 @@ using namespace pllee4::graph;
 
 TEST(Astar, InvalidSetOccupiedGrid) {
   Astar astar{MotionConstraintType::CARDINAL_MOTION};
+  EXPECT_FALSE(astar.SetOccupiedGrid({{1, 6}}));
   astar.SetMapStorageSize(3, 3);
   EXPECT_FALSE(astar.SetOccupiedGrid({{1, 6}}));
 }
@@ -39,8 +40,10 @@ TEST(Astar, FailedToFindPath) {
   astar.SetOccupiedGrid({{1, 2}, {1, 1}});
   astar.SetStartAndDestination({0, 0}, {4, 4});
   EXPECT_FALSE(astar.FindPath());
+  EXPECT_FALSE(astar.GetPath().has_value());
   astar.SetStartAndDestination({4, 4}, {2, 2});
   EXPECT_FALSE(astar.FindPath());
+  EXPECT_FALSE(astar.GetPath().has_value());
 }
 
 TEST(Astar, FindPath) {

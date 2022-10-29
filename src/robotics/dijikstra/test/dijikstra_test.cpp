@@ -15,6 +15,7 @@ using namespace pllee4::graph;
 
 TEST(Dijikstra, InvalidSetOccupiedGrid) {
   Dijikstra dijikstra{MotionConstraintType::CARDINAL_MOTION};
+  EXPECT_FALSE(dijikstra.SetOccupiedGrid({{1, 6}}));
   dijikstra.SetMapStorageSize(2, 6);
   EXPECT_FALSE(dijikstra.SetOccupiedGrid({{1, 6}}));
 }
@@ -39,8 +40,10 @@ TEST(Dijikstra, FailedToFindPath) {
   dijikstra.SetOccupiedGrid({{1, 2}, {1, 1}});
   dijikstra.SetStartAndDestination({0, 0}, {4, 4});
   EXPECT_FALSE(dijikstra.FindPath());
+  EXPECT_FALSE(dijikstra.GetPath().has_value());
   dijikstra.SetStartAndDestination({4, 4}, {2, 2});
   EXPECT_FALSE(dijikstra.FindPath());
+  EXPECT_FALSE(dijikstra.GetPath().has_value());
 }
 
 TEST(Dijikstra, FindPath) {
