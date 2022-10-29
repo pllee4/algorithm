@@ -17,18 +17,6 @@
 
 namespace pllee4::graph {
 /**
- * @brief Specification for variants of A*
- * f = w1 * g + w2 * h
- */
-struct AstarVariantSpecification {
-  uint8_t w1;
-  uint8_t w2;
-  HeuristicFunc heuristic_func{[](int, int) {
-    return 0;
-  }};  // default return 0 to avoid possibly segmentation fault
-};
-
-/**
  * @brief Get specification of variants of A*
  *
  * @tparam w1
@@ -65,7 +53,9 @@ class AstarVariant : public AstarVariantBase {
     SetMotionConstraint(GetMotionConstraint(motion_constraint_type));
   }
 
-  HeuristicFunc GetHeuristicFunc() override { return heuristic_func_; }
+  AstarVariantSpecification GetAstarVariantSpec() override {
+    return specification_;
+  }
 
  private:
   MotionConstraintType motion_constraint_type_;
@@ -73,7 +63,6 @@ class AstarVariant : public AstarVariantBase {
   AstarVariantSpecification specification_{
       GetAstarVariantSpecification<w1, w2>(heuristic_func_)};
 };
-
 using Dijikstra = AstarVariant<1, 0>;
 using Astar = AstarVariant<1, 1>;
 using BestFirstSearch = AstarVariant<0, 1>;

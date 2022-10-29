@@ -98,10 +98,14 @@ std::optional<std::vector<Coordinate>> AstarVariantBase::StepOverPathFinding() {
             !visited_map_[coordinate.x][coordinate.y]) {
           const auto dist_travelled = sqrt(abs(motion_constraint_.dx[k]) +
                                            abs(motion_constraint_.dy[k]));
+
+          const auto astar_variant_spec = GetAstarVariantSpec();
+
           const auto new_g = map[i][j].g + dist_travelled;
-          const auto new_h = GetHeuristicFunc()(coordinate.x - dest_.x,
-                                                coordinate.y - dest_.y);
-          const auto new_f = new_g + new_h;
+          const auto new_h = astar_variant_spec.heuristic_func(
+              coordinate.x - dest_.x, coordinate.y - dest_.y);
+          const auto new_f =
+              astar_variant_spec.w1 * new_g + astar_variant_spec.w2 * new_h;
 
           if (map[coordinate.x][coordinate.y].f ==
                   std::numeric_limits<MapStorage::CostDataType>::max() ||

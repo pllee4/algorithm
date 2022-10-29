@@ -19,6 +19,17 @@
 #include "algorithm/robotics/shared_type/motion_constraint.hpp"
 
 namespace pllee4::graph {
+/**
+ * @brief Specification for variants of A*
+ * f = w1 * g + w2 * h
+ */
+struct AstarVariantSpecification {
+  uint8_t w1;
+  uint8_t w2;
+  HeuristicFunc heuristic_func{[](int, int) {
+    return 0;
+  }};  // default return 0 to avoid possibly segmentation fault
+};
 class AstarVariantBase : public PathFinderInterface {
  public:
   virtual ~AstarVariantBase() = default;
@@ -37,7 +48,7 @@ class AstarVariantBase : public PathFinderInterface {
   std::optional<std::vector<Coordinate>> GetPath() override;
 
   // To be overridden by derived classes
-  virtual HeuristicFunc GetHeuristicFunc() = 0;
+  virtual AstarVariantSpecification GetAstarVariantSpec() = 0;
 
  protected:
   void SetMotionConstraint(MotionConstraint motion_constraint);
