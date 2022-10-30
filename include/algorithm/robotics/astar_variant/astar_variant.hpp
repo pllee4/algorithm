@@ -47,7 +47,7 @@ class AstarVariant : public AstarVariantBase {
   }
 
   AstarVariant(const MotionConstraintType motion_constraint_type,
-               HeuristicFunc heuristic_func)
+               const HeuristicFunc& heuristic_func)
       : motion_constraint_type_(motion_constraint_type),
         heuristic_func_(heuristic_func) {
     SetMotionConstraint(GetMotionConstraint(motion_constraint_type));

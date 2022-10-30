@@ -155,7 +155,8 @@ std::optional<std::vector<Coordinate>> AstarVariantBase::GetPath() {
   }
 }
 
-void AstarVariantBase::SetMotionConstraint(MotionConstraint motion_constraint) {
+void AstarVariantBase::SetMotionConstraint(
+    const MotionConstraint &motion_constraint) {
   motion_constraint_ = motion_constraint;
 }
 }  // namespace pllee4::graph
