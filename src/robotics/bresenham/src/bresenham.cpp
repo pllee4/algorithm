@@ -12,7 +12,7 @@
 #include <cstdlib>
 
 namespace pllee4::graph {
-LineGenerator::LineGenerator(Coordinate& start, Coordinate& end) {
+LineGenerator::LineGenerator(const Coordinate& start, const Coordinate& end) {
   const auto dx = abs(end.x - start.x);
   const auto sx = start.x < end.x ? 1 : -1;
   const auto dy = -abs(end.y - start.y);
@@ -24,7 +24,7 @@ LineGenerator::LineGenerator(Coordinate& start, Coordinate& end) {
 
   points_.reserve(std::max(abs(end.x - start.x), abs(end.y - start.y)));
 
-  while (1) {
+  while (true) {
     points_.emplace_back(Coordinate{x, y});
     if (start == end) break;
     const auto e2 = 2 * error;

@@ -14,33 +14,33 @@
 using namespace pllee4::generic;
 
 TEST(Butterworth, ButtOrdThrow) {
-  EXPECT_THROW(Butterworth<float>::ButtOrd(1.2, 0.49828, 1, 26.0),
+  EXPECT_THROW(Butterworth<double>::ButtOrd(1.2, 0.49828, 1, 26.0),
                std::invalid_argument);
-  EXPECT_THROW(Butterworth<float>::ButtOrd(0.49828, -2.0, 1, 26.0),
+  EXPECT_THROW(Butterworth<double>::ButtOrd(0.49828, -2.0, 1, 26.0),
                std::invalid_argument);
 }
 
 TEST(Butterworth, ButtOrdLowPass) {
-  auto [order, value] = Butterworth<float>::ButtOrd(0.18141, 0.49828, 1, 26.0);
+  auto [order, value] = Butterworth<double>::ButtOrd(0.18141, 0.49828, 1, 26.0);
   EXPECT_EQ(order, 4);
   EXPECT_FLOAT_EQ(value, 0.28009653);
 }
 
 TEST(Butterworth, ButtOrdHighPass) {
-  auto [order, value] = Butterworth<float>::ButtOrd(0.49828, 0.18141, 1, 26.0);
+  auto [order, value] = Butterworth<double>::ButtOrd(0.49828, 0.18141, 1, 26.0);
   EXPECT_EQ(order, 4);
   EXPECT_FLOAT_EQ(value, 0.3528198);
 }
 
 TEST(Butterworth, ButterLowPass) {
-  Butterworth<float> butter(5, 10, 100,
-                            Butterworth<float>::FilterType::kLowPass);
+  Butterworth<double> butter(5, 10, 100,
+                             Butterworth<double>::FilterType::kLowPass);
 
-  VectorXt<float> a_coeffs = (VectorXt<float>(6) << 1, -2.97542211, 3.80601812,
-                              -2.54525287, 0.88113008, -0.12543062)
-                                 .finished();
-  VectorXt<float> b_coeffs =
-      (VectorXt<float>(6) << 0.0012825811, 0.0064129054, 0.012825811,
+  VectorXt<double> a_coeffs = (VectorXt<double>(6) << 1, -2.97542211,
+                               3.80601812, -2.54525287, 0.88113008, -0.12543062)
+                                  .finished();
+  VectorXt<double> b_coeffs =
+      (VectorXt<double>(6) << 0.0012825811, 0.0064129054, 0.012825811,
        0.012825811, 0.00641290539, 0.0012825811)
           .finished();
 
@@ -54,15 +54,15 @@ TEST(Butterworth, ButterLowPass) {
 }
 
 TEST(Butterworth, ButterHighPass) {
-  Butterworth<float> butter(5, 10, 100,
-                            Butterworth<float>::FilterType::kHighPass);
+  Butterworth<double> butter(5, 10, 100,
+                             Butterworth<double>::FilterType::kHighPass);
 
-  VectorXt<float> a_coeffs = (VectorXt<float>(6) << 1, -2.97542211, 3.80601812,
-                              -2.54525287, 0.88113008, -0.12543062)
-                                 .finished();
-  VectorXt<float> b_coeffs = (VectorXt<float>(6) << 0.35416418, -1.77082095,
-                              3.54164181, -3.54164181, 1.77082091, -0.35416418)
-                                 .finished();
+  VectorXt<double> a_coeffs = (VectorXt<double>(6) << 1, -2.97542211,
+                               3.80601812, -2.54525287, 0.88113008, -0.12543062)
+                                  .finished();
+  VectorXt<double> b_coeffs = (VectorXt<double>(6) << 0.35416418, -1.77082095,
+                               3.54164181, -3.54164181, 1.77082091, -0.35416418)
+                                  .finished();
 
   auto a_coeff_res = butter.GetACoefficients();
   auto b_coeff_res = butter.GetBCoefficients();
@@ -74,26 +74,26 @@ TEST(Butterworth, ButterHighPass) {
 }
 
 TEST(Butterworth, StepFilter) {
-  Butterworth<float> butter(1, 5, 1000,
-                            Butterworth<float>::FilterType::kLowPass);
-  float expected_values[] = {0.00773315, 0.0229602, 0.0377163, 0.052016,
-                             0.0658733};
-  float filtered_signal;
-  for (int i = 0; i < 5; ++i) {
-    filtered_signal = butter.StepFilter(0.5);
-    EXPECT_NEAR(filtered_signal, expected_values[i], 0.001);
-  }
+  Butterworth<double> butter(1, 5, 1000,
+                             Butterworth<double>::FilterType::kLowPass);
+  std::vector<double> expected_values = {0.00773315, 0.0229602, 0.0377163,
+                                         0.052016, 0.0658733};
+  auto check_filtered_signal = [&butter](const double value) {
+    EXPECT_NEAR(butter.StepFilter(0.5), value, 0.001);
+  };
+  std::for_each(expected_values.begin(), expected_values.end(),
+                check_filtered_signal);
 }
 
 TEST(Butterworth, SetCutoffFrequency) {
-  Butterworth<float> butter(1, 10, 1000,
-                            Butterworth<float>::FilterType::kLowPass);
+  Butterworth<double> butter(1, 10, 1000,
+                             Butterworth<double>::FilterType::kLowPass);
   butter.SetCutoffFrequency(5);
-  float expected_values[] = {0.00773315, 0.0229602, 0.0377163, 0.052016,
-                             0.0658733};
-  float filtered_signal;
-  for (int i = 0; i < 5; ++i) {
-    filtered_signal = butter.StepFilter(0.5);
-    EXPECT_NEAR(filtered_signal, expected_values[i], 0.001);
-  }
+  std::vector<double> expected_values = {0.00773315, 0.0229602, 0.0377163,
+                                         0.052016, 0.0658733};
+  auto check_filtered_signal = [&butter](const double value) {
+    EXPECT_NEAR(butter.StepFilter(0.5), value, 0.001);
+  };
+  std::for_each(expected_values.begin(), expected_values.end(),
+                check_filtered_signal);
 }
