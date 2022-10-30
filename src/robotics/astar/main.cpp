@@ -11,18 +11,26 @@
 
 #include "algorithm/robotics/astar/astar.hpp"
 
-using namespace pllee4;
-using namespace graph;
+using namespace pllee4::graph;
 
 int main(int argc, char **argv) {
-  AStar astar(AStar::MotionConstraintType::CARDINAL_MOTION);
+  Astar astar(MotionConstraintType::CARDINAL_MOTION);
+  astar.SetMapStorageSize(6, 6);
   std::vector<Coordinate> occupied_map = {{2, 2}, {2, 3}, {2, 4},
                                           {3, 2}, {3, 3}, {3, 4}};
-  if (!astar.SetOccupancyGrid(occupied_map, 6, 6)) {
+  if (!astar.SetOccupiedGrid(occupied_map)) {
     std::cout << "Invalid occupancy grid!" << std::endl;
   }
-  if (!astar.FindPath({0, 3}, {5, 1}))
-    std::cout << "Could not find valid path!" << std::endl;
+  astar.SetStartAndDestination({0, 3}, {5, 1});
+  if (!astar.FindPath()) std::cout << "Could not find valid path!" << std::endl;
+  if (astar.GetPath().has_value()) {
+    std::cout << "Found path" << std::endl;
+    auto path = astar.GetPath().value();
+    for (const auto coordinate : path) {
+      std::cout << "traverse to (" << coordinate.x << "," << coordinate.y << ")"
+                << std::endl;
+    }
+  }
 
   return 0;
 }

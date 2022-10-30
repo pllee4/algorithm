@@ -9,58 +9,25 @@
 
 #include "algorithm/robotics/dijikstra/dijikstra.hpp"
 
-#include <vector>
-
 #include "gtest/gtest.h"
 
-using namespace pllee4;
-using namespace graph;
+using namespace pllee4::graph;
 
-TEST(Dijikstra, InvalidConstructor) {
-  struct MotionConstraint motion_constraint;
-  motion_constraint.dx = {1, 0, -1, 0};
-  motion_constraint.dy = {0, 1, 0};
-  try {
-    Dijikstra dijikstra(motion_constraint);
-  } catch (const std::invalid_argument& e) {
-    EXPECT_EQ(
-        e.what(),
-        std::string("Incompatible size of dx and dy for motion constraint"));
-  }
+TEST(Dijikstra, InvalidSetOccupiedGrid) {
+  Dijikstra dijikstra{MotionConstraintType::CARDINAL_MOTION};
+  EXPECT_FALSE(dijikstra.SetOccupiedGrid({{1, 6}}));
+  dijikstra.SetMapStorageSize(2, 6);
+  EXPECT_FALSE(dijikstra.SetOccupiedGrid({{1, 6}}));
 }
 
-TEST(Dijikstra, ValidConstructor) {
-  struct MotionConstraint motion_constraint;
-  motion_constraint.dx = {1, 0, -1, 0};
-  motion_constraint.dy = {0, 1, 0, -1};
-  EXPECT_NO_THROW(Dijikstra dijikstra{motion_constraint});
-  EXPECT_NO_THROW(Dijikstra dijikstra(motion_constraint));
-}
-
-TEST(Dijikstra, InvalidSetOccupancyGrid) {
-  struct MotionConstraint motion_constraint;
-  motion_constraint.dx = {1, 0, -1, 0};
-  motion_constraint.dy = {0, 1, 0, -1};
-
-  Dijikstra dijikstra{motion_constraint};
-  EXPECT_FALSE(dijikstra.SetOccupancyGrid({{1, 6}}, 2, 6));
-}
-
-TEST(Dijikstra, ValidSetOccupancyGrid) {
-  struct MotionConstraint motion_constraint;
-  motion_constraint.dx = {1, 0, -1, 0};
-  motion_constraint.dy = {0, 1, 0, -1};
-
-  Dijikstra dijikstra{motion_constraint};
-  EXPECT_TRUE(dijikstra.SetOccupancyGrid({{1, 6}}, 2, 7));
+TEST(Dijikstra, ValidSetOccupanciedGrid) {
+  Dijikstra dijikstra{MotionConstraintType::CARDINAL_MOTION};
+  dijikstra.SetMapStorageSize(2, 7);
+  EXPECT_TRUE(dijikstra.SetOccupiedGrid({{1, 6}}));
 }
 
 TEST(Dijikstra, FailedToFindPath) {
-  struct MotionConstraint motion_constraint;
-  motion_constraint.dx = {1, 0, -1, 0};
-  motion_constraint.dy = {0, 1, 0, -1};
-
-  Dijikstra dijikstra{motion_constraint};
+  Dijikstra dijikstra{MotionConstraintType::CARDINAL_MOTION};
 
   /**
    * s = start, e = end, x = occupied
@@ -69,17 +36,18 @@ TEST(Dijikstra, FailedToFindPath) {
    *  |   |   |   |
    */
 
-  dijikstra.SetOccupancyGrid({{1, 2}, {1, 1}}, 3, 3);
-  EXPECT_FALSE(dijikstra.FindPath({0, 0}, {4, 4}));
-  EXPECT_FALSE(dijikstra.FindPath({4, 4}, {2, 2}));
+  dijikstra.SetMapStorageSize(3, 3);
+  dijikstra.SetOccupiedGrid({{1, 2}, {1, 1}});
+  dijikstra.SetStartAndDestination({0, 0}, {4, 4});
+  EXPECT_FALSE(dijikstra.FindPath());
+  EXPECT_FALSE(dijikstra.GetPath().has_value());
+  dijikstra.SetStartAndDestination({4, 4}, {2, 2});
+  EXPECT_FALSE(dijikstra.FindPath());
+  EXPECT_FALSE(dijikstra.GetPath().has_value());
 }
 
 TEST(Dijikstra, FindPath) {
-  struct MotionConstraint motion_constraint;
-  motion_constraint.dx = {1, 0, -1, 0};
-  motion_constraint.dy = {0, 1, 0, -1};
-
-  Dijikstra dijikstra{motion_constraint};
+  Dijikstra dijikstra{MotionConstraintType::CARDINAL_MOTION};
 
   /**
    * s = start, e = end, x = occupied
@@ -88,16 +56,14 @@ TEST(Dijikstra, FindPath) {
    *  |   |   |   |
    */
 
-  dijikstra.SetOccupancyGrid({{1, 2}, {1, 1}}, 3, 3);
-  EXPECT_TRUE(dijikstra.FindPath({0, 2}, {2, 2}));
+  dijikstra.SetMapStorageSize(3, 3);
+  dijikstra.SetOccupiedGrid({{1, 2}, {1, 1}});
+  dijikstra.SetStartAndDestination({0, 2}, {2, 2});
+  EXPECT_TRUE(dijikstra.FindPath());
 }
 
 TEST(Dijikstra, GetPath) {
-  struct MotionConstraint motion_constraint;
-  motion_constraint.dx = {1, 0, -1, 0};
-  motion_constraint.dy = {0, 1, 0, -1};
-
-  Dijikstra dijikstra{motion_constraint};
+  Dijikstra dijikstra{MotionConstraintType::CARDINAL_MOTION};
 
   /**
    * s = start, e = end, x = occupied
@@ -106,9 +72,12 @@ TEST(Dijikstra, GetPath) {
    *  |   |   |   |
    */
 
-  dijikstra.SetOccupancyGrid({{1, 2}, {1, 1}}, 3, 3);
-  dijikstra.FindPath({0, 2}, {2, 2});
-  auto path = dijikstra.GetPath({2, 2});
+  dijikstra.SetMapStorageSize(3, 3);
+  dijikstra.SetOccupiedGrid({{1, 2}, {1, 1}});
+  dijikstra.SetStartAndDestination({0, 2}, {2, 2});
+  EXPECT_TRUE(dijikstra.FindPath());
+  EXPECT_TRUE(dijikstra.GetPath().has_value());
+  const auto path = dijikstra.GetPath().value();
 
   std::vector<Coordinate> expected = {{0, 2}, {0, 1}, {0, 0}, {1, 0},
                                       {2, 0}, {2, 1}, {2, 2}};
@@ -117,11 +86,7 @@ TEST(Dijikstra, GetPath) {
 }
 
 TEST(Dijikstra, GetPathWithRevisit) {
-  struct MotionConstraint motion_constraint;
-  motion_constraint.dx = {1, 0, -1, 0};
-  motion_constraint.dy = {0, 1, 0, -1};
-
-  Dijikstra dijikstra{motion_constraint};
+  Dijikstra dijikstra{MotionConstraintType::CARDINAL_MOTION};
 
   /**
    * s = start, e = end, x = occupied
@@ -131,9 +96,12 @@ TEST(Dijikstra, GetPathWithRevisit) {
    *  |   |   | e |
    */
 
-  dijikstra.SetOccupancyGrid({{1, 2}}, 3, 4);
-  dijikstra.FindPath({0, 2}, {2, 0});
-  auto path = dijikstra.GetPath({2, 0});
+  dijikstra.SetMapStorageSize(3, 4);
+  dijikstra.SetOccupiedGrid({{1, 2}});
+  dijikstra.SetStartAndDestination({0, 2}, {2, 0});
+  dijikstra.FindPath();
+  EXPECT_TRUE(dijikstra.GetPath().has_value());
+  const auto path = dijikstra.GetPath().value();
 
   std::vector<Coordinate> expected = {{0, 2}, {0, 1}, {1, 1}, {1, 0}, {2, 0}};
   EXPECT_TRUE(std::equal(std::begin(path), std::end(path), std::begin(expected),

@@ -1,7 +1,7 @@
 # dijikstra as library target
-add_library(dijikstra STATIC src/dijikstra.cpp)
-target_link_libraries(dijikstra INTERFACE shared_type)
-target_include_directories(dijikstra PUBLIC
+add_library(dijikstra INTERFACE)
+target_link_libraries(dijikstra INTERFACE astar_variant)
+target_include_directories(dijikstra INTERFACE
 $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>)
 
 if(ALGO_BUILD_TEST)
