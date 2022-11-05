@@ -51,7 +51,7 @@ class AstarVariantBase : public PathFinderInterface {
   virtual AstarVariantSpecification GetAstarVariantSpec() = 0;
 
  protected:
-  void SetMotionConstraint(MotionConstraint motion_constraint);
+  void SetMotionConstraint(const MotionConstraint &motion_constraint);
 
  private:
   MotionConstraint motion_constraint_;

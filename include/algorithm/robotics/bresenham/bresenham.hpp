@@ -18,7 +18,7 @@
 namespace pllee4::graph {
 class LineGenerator {
  public:
-  LineGenerator(Coordinate& start, Coordinate& end);
+  LineGenerator(const Coordinate& start, const Coordinate& end);
   std::vector<Coordinate> GetPoints() const;
 
  private:

@@ -133,8 +133,7 @@ VectorXct<T> Butterworth<T>::GetAnalogZeros(T analog_fc) {
 
 template <typename T>
 std::complex<T> Butterworth<T>::GetAnalogPoles(int k, T analog_fc) {
-  T theta =
-      static_cast<float>(2 * k - 1) * pi<T> / static_cast<float>(2 * order_);
+  T theta = static_cast<T>(2 * k - 1) * pi<T> / static_cast<T>(2 * order_);
 
   std::complex<T> analog_pole(-std::sin(theta), std::cos(theta));
 
