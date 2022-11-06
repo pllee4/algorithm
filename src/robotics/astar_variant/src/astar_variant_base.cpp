@@ -39,16 +39,15 @@ bool AstarVariantBase::SetStartAndDestination(const Coordinate &start,
   if (map_storage_) {
     if (map_storage_->Contains(start) && map_storage_->Contains(dest)) {
       // new start / destination
-      if (!(start_ == start && dest_ == dest)) {
-        found_path_ = false;
+      if (reset_called_ || !(start_ == start && dest_ == dest)) {
         start_ = start;
         dest_ = dest;
 
-        // clear possible historical search
-        traverse_path_.clear();
-        map_storage_->ResetCost();
-        for (auto &row : visited_map_) {
-          std::fill(row.begin(), row.end(), false);
+        if (reset_called_) {
+          reset_called_ = false;
+        } else {
+          // clear possible historical search
+          ResetFunc(true);
         }
 
         auto &map = map_storage_->GetMap();
@@ -155,8 +154,26 @@ std::optional<std::vector<Coordinate>> AstarVariantBase::GetPath() {
   }
 }
 
+void AstarVariantBase::Reset() { ResetFunc(); }
+
 void AstarVariantBase::SetMotionConstraint(
     const MotionConstraint &motion_constraint) {
   motion_constraint_ = motion_constraint;
 }
+
+void AstarVariantBase::ResetFunc(bool reset_cost_only) {
+  traverse_path_.clear();
+  for (auto &row : visited_map_) {
+    std::fill(row.begin(), row.end(), false);
+  }
+  if (reset_cost_only) {
+    map_storage_->ResetCost();
+  } else {
+    map_storage_->Reset();
+    reset_called_ = true;
+  }
+
+  found_path_ = false;
+}
+
 }  // namespace pllee4::graph

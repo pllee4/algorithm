@@ -21,6 +21,8 @@ struct PathFinderInterface {
 
   virtual bool SetOccupiedGrid(
       const std::vector<Coordinate> &occupied_grid) = 0;
+
+  // internally would retain occupied grid if new start and destination is set
   virtual bool SetStartAndDestination(const Coordinate &start,
                                       const Coordinate &dest) = 0;
 
@@ -28,6 +30,8 @@ struct PathFinderInterface {
   virtual bool FindPath() = 0;
 
   virtual std::optional<std::vector<Coordinate>> GetPath() = 0;
+
+  virtual void Reset() = 0;
 };
 }  // namespace pllee4::graph
 
