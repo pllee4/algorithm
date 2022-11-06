@@ -66,6 +66,7 @@ bool AstarVariantBase::SetStartAndDestination(const Coordinate &start,
 }
 
 std::optional<std::vector<Coordinate>> AstarVariantBase::StepOverPathFinding() {
+  if (found_path_) return std::nullopt;
   if (start_and_end_set_) {
     if (!traverse_path_.empty()) {
       const auto travelled_path = traverse_path_.begin();
@@ -89,7 +90,7 @@ std::optional<std::vector<Coordinate>> AstarVariantBase::StepOverPathFinding() {
         if (coordinate == dest_) {
           map[coordinate.x][coordinate.y].parent_coordinate = {i, j};
           found_path_ = true;
-          break;
+          return std::nullopt;
         }
 
         // not occupied
@@ -121,7 +122,6 @@ std::optional<std::vector<Coordinate>> AstarVariantBase::StepOverPathFinding() {
           }
         }
       }
-      if (found_path_) return std::nullopt;
       return expanded_nodes;
     }
   }
