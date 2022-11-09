@@ -47,6 +47,8 @@ class AstarVariantBase : public PathFinderInterface {
 
   std::optional<std::vector<Coordinate>> GetPath() override;
 
+  void Reset() override;
+
   // To be overridden by derived classes
   virtual AstarVariantSpecification GetAstarVariantSpec() = 0;
 
@@ -54,6 +56,8 @@ class AstarVariantBase : public PathFinderInterface {
   void SetMotionConstraint(const MotionConstraint &motion_constraint);
 
  private:
+  void ResetFunc(bool reset_cost_only = false);
+
   MotionConstraint motion_constraint_;
   std::unique_ptr<MapStorage> map_storage_;
 
@@ -64,6 +68,7 @@ class AstarVariantBase : public PathFinderInterface {
   Coordinate dest_;
   bool start_and_end_set_{false};
   bool found_path_{false};
+  bool reset_called_{false};
 };
 }  // namespace pllee4::graph
 #endif /* ASTAR_VARIANT_BASE_HPP */

@@ -39,16 +39,15 @@ bool AstarVariantBase::SetStartAndDestination(const Coordinate &start,
   if (map_storage_) {
     if (map_storage_->Contains(start) && map_storage_->Contains(dest)) {
       // new start / destination
-      if (!(start_ == start && dest_ == dest)) {
-        found_path_ = false;
+      if (reset_called_ || !(start_ == start && dest_ == dest)) {
         start_ = start;
         dest_ = dest;
 
-        // clear possible historical search
-        traverse_path_.clear();
-        map_storage_->ResetCost();
-        for (auto &row : visited_map_) {
-          std::fill(row.begin(), row.end(), false);
+        if (reset_called_) {
+          reset_called_ = false;
+        } else {
+          // clear possible historical search
+          ResetFunc(true);
         }
 
         auto &map = map_storage_->GetMap();
@@ -67,6 +66,7 @@ bool AstarVariantBase::SetStartAndDestination(const Coordinate &start,
 }
 
 std::optional<std::vector<Coordinate>> AstarVariantBase::StepOverPathFinding() {
+  if (found_path_) return std::nullopt;
   if (start_and_end_set_) {
     if (!traverse_path_.empty()) {
       const auto travelled_path = traverse_path_.begin();
@@ -90,7 +90,7 @@ std::optional<std::vector<Coordinate>> AstarVariantBase::StepOverPathFinding() {
         if (coordinate == dest_) {
           map[coordinate.x][coordinate.y].parent_coordinate = {i, j};
           found_path_ = true;
-          break;
+          return std::nullopt;
         }
 
         // not occupied
@@ -122,7 +122,6 @@ std::optional<std::vector<Coordinate>> AstarVariantBase::StepOverPathFinding() {
           }
         }
       }
-      if (found_path_) return std::nullopt;
       return expanded_nodes;
     }
   }
@@ -155,8 +154,26 @@ std::optional<std::vector<Coordinate>> AstarVariantBase::GetPath() {
   }
 }
 
+void AstarVariantBase::Reset() { ResetFunc(); }
+
 void AstarVariantBase::SetMotionConstraint(
     const MotionConstraint &motion_constraint) {
   motion_constraint_ = motion_constraint;
 }
+
+void AstarVariantBase::ResetFunc(bool reset_cost_only) {
+  traverse_path_.clear();
+  for (auto &row : visited_map_) {
+    std::fill(row.begin(), row.end(), false);
+  }
+  if (reset_cost_only) {
+    map_storage_->ResetCost();
+  } else {
+    map_storage_->Reset();
+    reset_called_ = true;
+  }
+
+  found_path_ = false;
+}
+
 }  // namespace pllee4::graph

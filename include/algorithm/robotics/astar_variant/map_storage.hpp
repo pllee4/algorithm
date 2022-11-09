@@ -62,9 +62,15 @@ class MapStorage {
 
   std::vector<std::vector<Cell>> &GetMap() { return map_; }
 
-  void ResetCost() {
+  void ResetCost() { ResetFunc(false); }
+
+  void Reset() { ResetFunc(); }
+
+ private:
+  void ResetFunc(bool reset_occupied = true) {
     for (auto &row : map_) {
       for (auto &cell : row) {
+        if (reset_occupied) cell.occupied = false;
         cell.parent_coordinate = {0, 0};
         cell.f = std::numeric_limits<CostDataType>::max();
         cell.g = std::numeric_limits<CostDataType>::max();
@@ -73,7 +79,6 @@ class MapStorage {
     }
   }
 
- private:
   std::vector<std::vector<Cell>> map_;
 
   size_t map_x_size_;
