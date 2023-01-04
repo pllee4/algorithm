@@ -15,7 +15,11 @@ add_executable(astar_test test/astar_test.cpp)
 target_link_libraries(astar_test PRIVATE gtest gtest_main astar)
 gtest_discover_tests(astar_test XML_OUTPUT_DIR ${PROJECT_BINARY_DIR}/test-reports)
 
-add_test(NAME gtest_all COMMAND astar_test)
+add_executable(weighted_astar_test test/weighted_astar_test.cpp)
+target_link_libraries(weighted_astar_test PRIVATE gtest gtest_main astar)
+gtest_discover_tests(weighted_astar_test XML_OUTPUT_DIR ${PROJECT_BINARY_DIR}/test-reports)
+
+add_test(NAME gtest_all COMMAND astar_test weighted_astar_test)
 endif()
 
 # main
