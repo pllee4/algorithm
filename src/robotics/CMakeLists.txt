@@ -1,5 +1,6 @@
 add_subdirectory(astar)
 add_subdirectory(astar_variant)
+add_subdirectory(best_first_search)
 add_subdirectory(bresenham)
 add_subdirectory(dijikstra)
 add_subdirectory(shared_type)
