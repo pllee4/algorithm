@@ -1,25 +1,21 @@
-from conan import ConanFile
-from conan.tools.cmake import CMakeToolchain, CMakeDeps, CMake, cmake_layout
+from conans import ConanFile, CMake, tools
 
 class AlgorithmConan(ConanFile):
     name = "algorithm"
-    version = "0.3.2"
+    version = "0.3.1"
     license = "proprietary@pinloon"
     author = "Pin Loon Lee"
-    url = "https://github.com/pllee4/algorithm"
+    url = "<Package recipe repository url here, for issues about the package>"
     description = "Algorithm"
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False]}
     default_options = {"shared": False}
-    generators = "CMakeToolchain", "CMakeDeps"
+    generators = "cmake_paths"
     exports_sources = "*"
 
-    def layout(self):
-        self.cpp.package.includedirs = ["include"]
-        self.cpp.package.libs = ["algorithm"]
-
-    def build(self, variables=["-DALGO_PACK=true"]):
+    def build(self):
         cmake = CMake(self)
+        cmake.definitions["ALGO_PACK"] = True
         cmake.configure()
         cmake.build()
         
@@ -27,3 +23,7 @@ class AlgorithmConan(ConanFile):
         cmake = CMake(self)
         cmake.configure()
         cmake.install()
+
+    def package_info(self):
+        self.cpp_info.includedirs = ["include"]
+        self.cpp_info.libs = ["algorithm"]
