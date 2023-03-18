@@ -1,0 +1,10 @@
+name: Run latest ci and package creation
+on:
+  schedule:
+    - cron: '0 12 * * SUN'
+
+jobs:
+  latest_ci:
+    uses: ./.github/workflows/ci.yml
+  latest_creation_of_package:
+    uses: ./.github/workflows/package.yml

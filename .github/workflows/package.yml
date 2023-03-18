@@ -4,6 +4,7 @@ name: Pack
   pull_request:
     branches:
       - master
+  workflow_call:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -22,7 +23,9 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y libeigen3-dev python3-pip
 
       - name: Install conan
-        run: python3 -m pip install conan && conan user
+        run: python3 -m pip install conan
 
       - name: Create conan package
-        run: conan create . pinloon+public+algorithm/devel
+        run: |
+            conan profile detect
+            conan create .
