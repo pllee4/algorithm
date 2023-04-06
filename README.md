@@ -3,6 +3,8 @@
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=algorithm&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=algorithm)
 ![conan_package](https://gitlab.com/pinloon/public/algorithm/badges/master/pipeline.svg)
 
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/pinloon)
+
 - This repo is for learning purpose, consisted of generic and robotics algorithm
 
 # Build
