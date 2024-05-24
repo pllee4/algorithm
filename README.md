@@ -1,6 +1,6 @@
 # Algorithm
 [![codecov](https://codecov.io/gh/pllee4/algorithm/branch/check_coverage/graph/badge.svg?token=GYORB7SM25)](https://codecov.io/gh/pllee4/algorithm)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=algorithm&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=algorithm)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=pllee4_algorithm&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=pllee4_algorithm)
 ![conan_package](https://gitlab.com/pinloon/public/algorithm/badges/master/pipeline.svg)
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/pinloon)
@@ -18,3 +18,4 @@ $ make -j
 - For visualization, please refer to repo [here](https://github.com/pllee4/robot-visualizer.git)
   
   ![app_search_algo](https://user-images.githubusercontent.com/42335542/180598459-32addc9a-2517-46e8-93d4-26fd1d49113b.gif)
+  ![digital_filter](https://user-images.githubusercontent.com/42335542/178136131-905688df-5f11-47ac-8b5e-426ce8444f63.gif)
