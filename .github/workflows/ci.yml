@@ -27,6 +27,9 @@ jobs:
     needs: build
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
+    # work around lcov bug #316; remove once lcov is fixed (see https://github.com/linux-test-project/lcov/issues/316)
+    env:
+      LCOBUG: "--ignore-errors mismatch"
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -41,7 +44,7 @@ jobs:
       - name: Test
         run: cd ./build && make test
       - name: Check code coverage
-        run: /usr/bin/lcov --directory ./build --capture --output-file ./build/coverage.info && /usr/bin/lcov --remove ./build/coverage.info "/usr/*" "*/googletest/googletest/*" --output-file ./build/coverage.info
+        run: /usr/bin/lcov --directory ./build --capture --output-file ./build/coverage.info $LCOBUG && /usr/bin/lcov --remove ./build/coverage.info "/usr/*" "*/googletest/googletest/*" --output-file ./build/coverage.info
       - name: List coverage summary
         run: /usr/bin/lcov --list ./build/coverage.info
       - name: Upload report to codecov
