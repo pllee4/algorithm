@@ -1,11 +1,11 @@
-/* 
+/*
  * weighted_astar_test.cpp
- * 
+ *
  * Created on: Jan 02, 2023 11:49
- * Description: 
- * 
+ * Description:
+ *
  * Copyright (c) 2023 Pin Loon Lee (pllee4)
- */ 
+ */
 
 #include "algorithm/robotics/astar/weighted_astar.hpp"
 
@@ -26,6 +26,11 @@ TEST(WeightedAstar, ValidSetOccupanciedGrid) {
   WeightedAstar<weight> weighted_astar{MotionConstraintType::CARDINAL_MOTION};
   weighted_astar.SetMapStorageSize(2, 7);
   EXPECT_TRUE(weighted_astar.SetOccupiedGrid({{1, 6}}));
+}
+
+TEST(WeightedAstar, InvalidSetStartAndDestination) {
+  WeightedAstar<weight> weighted_astar{MotionConstraintType::CARDINAL_MOTION};
+  EXPECT_FALSE(weighted_astar.SetStartAndDestination({0, 0}, {4, 4}));
 }
 
 TEST(WeightedAstar, FailedToFindPath) {
@@ -156,7 +161,8 @@ TEST(WeightedAstar, GetPathAfterReset) {
 }
 
 TEST(WeightedAstar, GetPath8Dir) {
-  WeightedAstar<weight> weighted_astar{MotionConstraintType::CARDINAL_ORDINAL_MOTION};
+  WeightedAstar<weight> weighted_astar{
+      MotionConstraintType::CARDINAL_ORDINAL_MOTION};
 
   /**
    * s = start, e = end, x = occupied
@@ -201,7 +207,8 @@ TEST(WeightedAstar, GetPathWithRevisit) {
 }
 
 TEST(WeightedAstar, GetPath8DirWithRevisit) {
-  WeightedAstar<weight> weighted_astar{MotionConstraintType::CARDINAL_ORDINAL_MOTION};
+  WeightedAstar<weight> weighted_astar{
+      MotionConstraintType::CARDINAL_ORDINAL_MOTION};
 
   /**
    * s = start, e = end, x = occupied
