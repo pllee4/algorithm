@@ -1,0 +1,1 @@
+add_executable(test_convex_hull convex_hull.cpp)

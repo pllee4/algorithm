@@ -1,3 +1,4 @@
 add_subdirectory(common)
+add_subdirectory(convex_hull)
 add_subdirectory(digital_filter)
 add_subdirectory(polynomial)
