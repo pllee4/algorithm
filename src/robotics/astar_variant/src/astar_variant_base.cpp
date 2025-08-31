@@ -36,96 +36,105 @@ bool AstarVariantBase::SetOccupiedGrid(
 
 bool AstarVariantBase::SetStartAndDestination(const Coordinate &start,
                                               const Coordinate &dest) {
-  if (map_storage_) {
-    if (map_storage_->Contains(start) && map_storage_->Contains(dest)) {
-      // new start / destination
-      if (reset_called_ || !(start_ == start && dest_ == dest)) {
-        start_ = start;
-        dest_ = dest;
-
-        if (reset_called_) {
-          reset_called_ = false;
-        } else {
-          // clear possible historical search
-          ResetFunc(true);
-        }
-
-        auto &map = map_storage_->GetMap();
-        traverse_path_.insert(
-            std::make_pair(0, std::make_pair(start.x, start.y)));
-        map[start.x][start.y].parent_coordinate = start;
-        map[start.x][start.y].f = 0;
-        map[start.x][start.y].g = 0;
-        map[start.x][start.y].h = 0;
-      }
-      start_and_end_set_ = true;
-      return true;
-    }
+  if (!map_storage_) {
+    return false;
   }
+
+  if (map_storage_->Contains(start) && map_storage_->Contains(dest)) {
+    bool require_update = false;
+
+    if (reset_called_) {
+      reset_called_ = false;
+      require_update = true;
+    } else if (!(start_ == start && dest_ == dest))  // new start / destination
+    {
+      // clear possible historical search
+      ResetFunc(true);
+      require_update = true;
+    }
+
+    if (require_update) {
+      start_ = start;
+      dest_ = dest;
+
+      auto &map = map_storage_->GetMap();
+      traverse_path_.insert(
+          std::make_pair(0, std::make_pair(start.x, start.y)));
+      map[start.x][start.y].parent_coordinate = start;
+      map[start.x][start.y].f = 0;
+      map[start.x][start.y].g = 0;
+      map[start.x][start.y].h = 0;
+    }
+    start_and_end_set_ = true;
+    return true;
+  }
+
   return false;
 }
 
 std::optional<std::vector<Coordinate>> AstarVariantBase::StepOverPathFinding() {
-  if (found_path_) return std::nullopt;
-  if (start_and_end_set_) {
-    if (!traverse_path_.empty()) {
-      const auto travelled_path = traverse_path_.begin();
-      traverse_path_.erase(traverse_path_.begin());
+  if (found_path_) {
+    return std::nullopt;
+  }
 
-      const auto [i, j] = travelled_path->second;
+  if ((!start_and_end_set_) || traverse_path_.empty()) {
+    return std::nullopt;
+  }
 
-      // mark node as visited
-      visited_map_[i][j] = true;
+  const auto travelled_path = traverse_path_.begin();
+  traverse_path_.erase(traverse_path_.begin());
 
-      auto &map = map_storage_->GetMap();
+  const auto [i, j] = travelled_path->second;
 
-      std::vector<Coordinate> expanded_nodes;
+  // mark node as visited
+  visited_map_[i][j] = true;
 
-      for (size_t k = 0; k < motion_constraint_.size(); ++k) {
-        Coordinate coordinate;
-        coordinate.x = i + motion_constraint_.dx[k];
-        coordinate.y = j + motion_constraint_.dy[k];
-        if (!map_storage_->Contains(coordinate)) continue;
+  auto &map = map_storage_->GetMap();
 
-        if (coordinate == dest_) {
-          map[coordinate.x][coordinate.y].parent_coordinate = {i, j};
-          found_path_ = true;
-          return std::nullopt;
-        }
+  std::vector<Coordinate> expanded_nodes;
 
-        // not occupied
-        if (!map[coordinate.x][coordinate.y].occupied &&
-            !visited_map_[coordinate.x][coordinate.y]) {
-          const auto dist_travelled = sqrt(abs(motion_constraint_.dx[k]) +
-                                           abs(motion_constraint_.dy[k]));
+  for (size_t k = 0; k < motion_constraint_.size(); ++k) {
+    Coordinate coordinate;
+    coordinate.x = i + motion_constraint_.dx[k];
+    coordinate.y = j + motion_constraint_.dy[k];
+    if (!map_storage_->Contains(coordinate)) continue;
 
-          const auto astar_variant_spec = GetAstarVariantSpec();
+    if (coordinate == dest_) {
+      map[coordinate.x][coordinate.y].parent_coordinate = {i, j};
+      found_path_ = true;
+      return std::nullopt;
+    }
 
-          const auto new_g = map[i][j].g + dist_travelled;
-          const auto new_h = astar_variant_spec.heuristic_func(
-              coordinate.x - dest_.x, coordinate.y - dest_.y);
-          const auto new_f =
-              astar_variant_spec.w1 * new_g + astar_variant_spec.w2 * new_h;
+    // not occupied
+    if (!map[coordinate.x][coordinate.y].occupied &&
+        !visited_map_[coordinate.x][coordinate.y]) {
+      const auto dist_travelled =
+          sqrt(abs(motion_constraint_.dx[k]) + abs(motion_constraint_.dy[k]));
 
-          if (map[coordinate.x][coordinate.y].f ==
-                  std::numeric_limits<MapStorage::CostDataType>::max() ||
-              map[coordinate.x][coordinate.y].f >= new_f) {
-            map[coordinate.x][coordinate.y].f = new_f;
-            map[coordinate.x][coordinate.y].g = new_g;
-            map[coordinate.x][coordinate.y].h = new_h;
-            map[coordinate.x][coordinate.y].parent_coordinate = {i, j};
+      const auto astar_variant_spec = GetAstarVariantSpec();
 
-            traverse_path_.insert(std::make_pair(
-                new_f, std::make_pair(coordinate.x, coordinate.y)));
+      const auto new_g = map[i][j].g + dist_travelled;
+      const auto new_h = astar_variant_spec.heuristic_func(
+          coordinate.x - dest_.x, coordinate.y - dest_.y);
+      const auto new_f =
+          astar_variant_spec.w1 * new_g + astar_variant_spec.w2 * new_h;
 
-            expanded_nodes.push_back(coordinate);
-          }
-        }
+      if (map[coordinate.x][coordinate.y].f ==
+              std::numeric_limits<MapStorage::CostDataType>::max() ||
+          map[coordinate.x][coordinate.y].f >= new_f) {
+        map[coordinate.x][coordinate.y].f = new_f;
+        map[coordinate.x][coordinate.y].g = new_g;
+        map[coordinate.x][coordinate.y].h = new_h;
+        map[coordinate.x][coordinate.y].parent_coordinate = {i, j};
+
+        traverse_path_.insert(
+            std::make_pair(new_f, std::make_pair(coordinate.x, coordinate.y)));
+
+        expanded_nodes.push_back(coordinate);
       }
-      return expanded_nodes;
     }
   }
-  return std::nullopt;
+  return expanded_nodes;
 }
 bool AstarVariantBase::FindPath() {
   if (!start_and_end_set_) return false;

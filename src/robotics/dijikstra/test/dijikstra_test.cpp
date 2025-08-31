@@ -26,6 +26,11 @@ TEST(Dijikstra, ValidSetOccupanciedGrid) {
   EXPECT_TRUE(dijikstra.SetOccupiedGrid({{1, 6}}));
 }
 
+TEST(Dijikstra, InvalidSetStartAndDestination) {
+  Dijikstra dijikstra{MotionConstraintType::CARDINAL_MOTION};
+  EXPECT_FALSE(dijikstra.SetStartAndDestination({0, 0}, {4, 4}));
+}
+
 TEST(Dijikstra, FailedToFindPath) {
   Dijikstra dijikstra{MotionConstraintType::CARDINAL_MOTION};
 

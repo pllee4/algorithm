@@ -1,19 +1,17 @@
-/* 
+/*
  * best_first_search_test.cpp
- * 
+ *
  * Created on: Jan 04, 2023 21:26
- * Description: 
- * 
+ * Description:
+ *
  * Copyright (c) 2023 Pin Loon Lee (pllee4)
- */ 
+ */
 
 #include "algorithm/robotics/best_first_search/best_first_search.hpp"
 
 #include "gtest/gtest.h"
 
 using namespace pllee4::graph;
-
-static constexpr uint8_t weight = 10;
 
 TEST(BestFirstSearch, InvalidSetOccupiedGrid) {
   BestFirstSearch best_first_search{MotionConstraintType::CARDINAL_MOTION};
@@ -26,6 +24,11 @@ TEST(BestFirstSearch, ValidSetOccupanciedGrid) {
   BestFirstSearch best_first_search{MotionConstraintType::CARDINAL_MOTION};
   best_first_search.SetMapStorageSize(2, 7);
   EXPECT_TRUE(best_first_search.SetOccupiedGrid({{1, 6}}));
+}
+
+TEST(BestFirstSearch, InvalidSetStartAndDestination) {
+  BestFirstSearch best_first_search{MotionConstraintType::CARDINAL_MOTION};
+  EXPECT_FALSE(best_first_search.SetStartAndDestination({0, 0}, {4, 4}));
 }
 
 TEST(BestFirstSearch, FailedToFindPath) {
@@ -156,7 +159,8 @@ TEST(BestFirstSearch, GetPathAfterReset) {
 }
 
 TEST(BestFirstSearch, GetPath8Dir) {
-  BestFirstSearch best_first_search{MotionConstraintType::CARDINAL_ORDINAL_MOTION};
+  BestFirstSearch best_first_search{
+      MotionConstraintType::CARDINAL_ORDINAL_MOTION};
 
   /**
    * s = start, e = end, x = occupied
@@ -172,7 +176,8 @@ TEST(BestFirstSearch, GetPath8Dir) {
   EXPECT_TRUE(best_first_search.GetPath().has_value());
   const auto path = best_first_search.GetPath().value();
 
-  std::vector<Coordinate> expected = {{0, 2}, {0, 1}, {0, 0}, {1, 0}, {2, 1}, {2, 2}};
+  std::vector<Coordinate> expected = {{0, 2}, {0, 1}, {0, 0},
+                                      {1, 0}, {2, 1}, {2, 2}};
   EXPECT_TRUE(std::equal(std::begin(path), std::end(path), std::begin(expected),
                          std::end(expected)));
 }
@@ -201,7 +206,8 @@ TEST(BestFirstSearch, GetPathWithRevisit) {
 }
 
 TEST(BestFirstSearch, GetPath8DirWithRevisit) {
-  BestFirstSearch best_first_search{MotionConstraintType::CARDINAL_ORDINAL_MOTION};
+  BestFirstSearch best_first_search{
+      MotionConstraintType::CARDINAL_ORDINAL_MOTION};
 
   /**
    * s = start, e = end, x = occupied

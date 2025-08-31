@@ -26,6 +26,11 @@ TEST(Astar, ValidSetOccupanciedGrid) {
   EXPECT_TRUE(astar.SetOccupiedGrid({{1, 6}}));
 }
 
+TEST(Astar, InvalidSetStartAndDestination) {
+  Astar astar{MotionConstraintType::CARDINAL_MOTION};
+  EXPECT_FALSE(astar.SetStartAndDestination({0, 0}, {4, 4}));
+}
+
 TEST(Astar, FailedToFindPath) {
   Astar astar{MotionConstraintType::CARDINAL_MOTION};
 
