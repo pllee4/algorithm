@@ -36,3 +36,13 @@ TEST(Bresenham, CheckLineFromPositiveTowardsRightUpwards) {
   EXPECT_TRUE(std::equal(std::begin(points), std::end(points),
                          std::begin(expected), std::end(expected)));
 }
+
+TEST(Bresenham, CheckVerticalLineReachesEndYFirst) {
+  Coordinate start{0, 0};
+  Coordinate end{1, 3};
+  LineGenerator line(start, end);
+  auto points = line.GetPoints();
+  std::vector<Coordinate> expected = {{0, 0}, {0, 1}, {1, 2}, {1, 3}};
+  EXPECT_TRUE(std::equal(std::begin(points), std::end(points),
+                         std::begin(expected), std::end(expected)));
+}
