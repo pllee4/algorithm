@@ -27,17 +27,29 @@ LineGenerator::LineGenerator(const Coordinate& start, const Coordinate& end) {
   while (true) {
     points_.emplace_back(Coordinate{x, y});
     if (start == end) break;
+
     const auto e2 = 2 * error;
+    bool should_break = false;
+
     if (e2 >= dy) {
-      if (x == end.x) break;
-      error += dy;
-      x += sx;
+      if (x == end.x) {
+        should_break = true;
+      } else {
+        error += dy;
+        x += sx;
+      }
     }
-    if (e2 <= dx) {
-      if (y == end.y) break;
-      error += dx;
-      y += sy;
+
+    if (!should_break && e2 <= dx) {
+      if (y == end.y) {
+        should_break = true;
+      } else {
+        error += dx;
+        y += sy;
+      }
     }
+
+    if (should_break) break;
   }
 }
 
