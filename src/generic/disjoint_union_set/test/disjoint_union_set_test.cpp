@@ -78,6 +78,18 @@ TEST(DisjointUnionSetsTest, UnionByRank) {
   EXPECT_EQ(dsu.Find(4), dsu.Find(0));
 }
 
+TEST(DisjointUnionSetsTest, UnionLowerRankToHigherRank) {
+  DisjointUnionSets dsu(6);
+
+  dsu.UnionSets(0, 1);
+  dsu.UnionSets(2, 3);
+  dsu.UnionSets(0, 2);
+  
+  dsu.UnionSets(4, 0);
+  
+  EXPECT_EQ(dsu.Find(4), dsu.Find(0));
+}
+
 TEST(DisjointUnionSetsTest, SelfUnion) {
   DisjointUnionSets dsu(5);
 
