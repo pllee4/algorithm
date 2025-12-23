@@ -1,3 +1,4 @@
 add_subdirectory(common)
+add_subdirectory(disjoint_union_set)
 add_subdirectory(digital_filter)
 add_subdirectory(polynomial)
