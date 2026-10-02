@@ -1,7 +1,7 @@
 # Astar as library target
-add_library(astar INTERFACE)
-target_link_libraries(astar INTERFACE astar_variant)
-target_include_directories(astar INTERFACE
+add_library(astar STATIC space_time_astar.cpp)
+target_link_libraries(astar PUBLIC astar_variant shared_type)
+target_include_directories(astar PUBLIC
 $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>)
 
 if(ALGO_BUILD_TEST)
@@ -19,9 +19,16 @@ add_executable(weighted_astar_test test/weighted_astar_test.cpp)
 target_link_libraries(weighted_astar_test PRIVATE gtest gtest_main astar)
 gtest_discover_tests(weighted_astar_test XML_OUTPUT_DIR ${PROJECT_BINARY_DIR}/test-reports)
 
+add_executable(space_time_astar_test test/space_time_astar_test.cpp)
+target_link_libraries(space_time_astar_test PRIVATE gtest gtest_main astar)
+gtest_discover_tests(space_time_astar_test XML_OUTPUT_DIR ${PROJECT_BINARY_DIR}/test-reports)
+
 add_test(NAME gtest_all COMMAND astar_test weighted_astar_test)
 endif()
 
 # main
 add_executable(astar_main main.cpp)
 target_link_libraries(astar_main PRIVATE astar)
+
+add_executable(space_time_astar_main space_time_astar_main.cpp)
+target_link_libraries(space_time_astar_main PRIVATE astar)
