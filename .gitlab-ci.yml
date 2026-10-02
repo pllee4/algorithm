@@ -2,35 +2,6 @@ stages:
   - build
   - deploy
 
-bionic-build:
-  stage: build
-  image: pllee4/ubuntu-ci:18.04
-  variables:
-    GIT_SUBMODULE_STRATEGY: recursive
-  before_script:
-    - apt-get install -y libeigen3-dev
-  script:
-    - mkdir build && cd build
-    - cmake .. 
-    - cmake --build .
-
-bionic-staging:
-  stage: deploy
-  only:    
-    - master
-  image: pllee4/ubuntu-ci:18.04
-  variables:
-    GIT_SUBMODULE_STRATEGY: recursive
-  before_script:
-    - apt-get install -y libeigen3-dev
-    - conan remote add gitlab https://gitlab.com/api/v4/packages/conan
-  script:
-    # build conan package
-    - conan create . pinloon+public+algorithm/devel
-    - CONAN_LOGIN_USERNAME=ci_user CONAN_PASSWORD=${CI_JOB_TOKEN} conan upload algorithm/0.3.1@pinloon+public+algorithm/devel --all --remote=gitlab
-  dependencies:
-    - bionic-build
-
 focal-build:
   stage: build
   image: pllee4/ubuntu-ci:20.04
@@ -52,10 +23,12 @@ focal-staging:
     GIT_SUBMODULE_STRATEGY: recursive
   before_script:
     - apt-get install -y libeigen3-dev
-    - conan remote add gitlab https://gitlab.com/api/v4/packages/conan
+    # Conan 2 only works with the project-level registry, not the instance-level one
+    - conan remote add gitlab ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/conan
   script:
     # build conan package
-    - conan create . pinloon+public+algorithm/devel
-    - CONAN_LOGIN_USERNAME=ci_user CONAN_PASSWORD=${CI_JOB_TOKEN} conan upload algorithm/0.3.1@pinloon+public+algorithm/devel --all --remote=gitlab
+    - conan profile detect
+    - conan create . --user=pinloon+public+algorithm --channel=devel --build=missing
+    - CONAN_LOGIN_USERNAME=ci_user CONAN_PASSWORD=${CI_JOB_TOKEN} conan upload "algorithm/*@pinloon+public+algorithm/devel" --remote=gitlab -c
   dependencies:
     - focal-build
