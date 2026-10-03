@@ -13,9 +13,8 @@ namespace pllee4::graph {
 void AstarVariantBase::SetMapStorageSize(const size_t x_size,
                                          const size_t y_size) {
   map_storage_ = std::make_unique<MapStorage>(x_size, y_size);
-  std::vector<std::vector<bool>> visited_map(x_size,
-                                             std::vector<bool>(y_size, false));
-  visited_map_ = visited_map;
+  visited_map_ =
+      std::vector<std::vector<bool>>(x_size, std::vector<bool>(y_size, false));
 }
 
 bool AstarVariantBase::SetOccupiedGrid(
