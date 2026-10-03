@@ -40,20 +40,20 @@ class MapStorage {
   };
 
  public:
-  /*
-  y
-  ^
-  |
-  |
-  |
-  |_________>x
-  */
-  MapStorage(const size_t x_size, const size_t y_size)
-      : map_x_size_(x_size), map_y_size_(y_size) {
-    std::vector<std::vector<Cell>> map(map_x_size_,
-                                       std::vector<Cell>(map_y_size_));
-    map_ = map;
-  }
+/**
+ * Coordinate frame:
+ * @verbatim
+ * y
+ * ^
+ * |
+ * |
+ * |_________> x
+ * @endverbatim
+ */
+  MapStorage(size_t x_size, size_t y_size)
+      : map_x_size_(x_size),
+        map_y_size_(y_size),
+        map_(x_size, std::vector<Cell>(y_size)) {}
 
   bool Contains(const Coordinate &coordinate) const {
     return (coordinate.x >= 0 && coordinate.x < static_cast<int>(map_x_size_) &&
@@ -79,10 +79,10 @@ class MapStorage {
     }
   }
 
-  std::vector<std::vector<Cell>> map_;
-
   size_t map_x_size_;
   size_t map_y_size_;
+
+  std::vector<std::vector<Cell>> map_;
 };
 }  // namespace pllee4::graph
 #endif /* MAP_STORAGE_HPP */

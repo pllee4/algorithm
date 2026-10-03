@@ -15,17 +15,17 @@ jobs:
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: recursive
 
       - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y libeigen3-dev python3-pip
+        run: sudo apt-get update && sudo apt-get install -y libeigen3-dev
 
       - name: Install conan
-        run: python3 -m pip install conan
+        run: pipx install "conan~=2.0"
 
       - name: Create conan package
         run: |
             conan profile detect
-            conan create .
+            conan create . --build=missing

@@ -78,11 +78,9 @@ TEST(Butterworth, StepFilter) {
                              Butterworth<double>::FilterType::kLowPass);
   std::vector<double> expected_values = {0.00773315, 0.0229602, 0.0377163,
                                          0.052016, 0.0658733};
-  auto check_filtered_signal = [&butter](const double value) {
-    EXPECT_NEAR(butter.StepFilter(0.5), value, 0.001);
-  };
-  std::for_each(expected_values.begin(), expected_values.end(),
-                check_filtered_signal);
+  for (const auto expected : expected_values) {
+    EXPECT_NEAR(butter.StepFilter(0.5), expected, 0.001);
+  }
 }
 
 TEST(Butterworth, SetCutoffFrequency) {
@@ -91,9 +89,7 @@ TEST(Butterworth, SetCutoffFrequency) {
   butter.SetCutoffFrequency(5);
   std::vector<double> expected_values = {0.00773315, 0.0229602, 0.0377163,
                                          0.052016, 0.0658733};
-  auto check_filtered_signal = [&butter](const double value) {
-    EXPECT_NEAR(butter.StepFilter(0.5), value, 0.001);
-  };
-  std::for_each(expected_values.begin(), expected_values.end(),
-                check_filtered_signal);
+  for (const auto expected : expected_values) {
+    EXPECT_NEAR(butter.StepFilter(0.5), expected, 0.001);
+  }
 }
