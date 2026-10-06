@@ -15,7 +15,6 @@ add_executable(dijikstra_test test/dijikstra_test.cpp)
 target_link_libraries(dijikstra_test PRIVATE gtest gtest_main dijikstra)
 gtest_discover_tests(dijikstra_test XML_OUTPUT_DIR ${PROJECT_BINARY_DIR}/test-reports)
 
-add_test(NAME gtest_all COMMAND dijikstra_test)
 endif()
 
 # main

@@ -14,6 +14,4 @@ mark_as_advanced(
 add_executable(best_first_search_test test/best_first_search_test.cpp)
 target_link_libraries(best_first_search_test PRIVATE gtest gtest_main best_first_search)
 gtest_discover_tests(best_first_search_test XML_OUTPUT_DIR ${PROJECT_BINARY_DIR}/test-reports)
-
-add_test(NAME gtest_all COMMAND best_first_search_test)
 endif()

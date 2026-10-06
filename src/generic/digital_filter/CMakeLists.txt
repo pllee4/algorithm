@@ -21,7 +21,6 @@ add_executable(butterworth_test test/butterworth_test.cpp)
 target_link_libraries(butterworth_test PRIVATE gtest gtest_main digital_filter)
 gtest_discover_tests(butterworth_test XML_OUTPUT_DIR ${PROJECT_BINARY_DIR}/test-reports)
 
-add_test(NAME gtest_all COMMAND bilinear_transform_test butterworth_test)
 endif()
 
 # main

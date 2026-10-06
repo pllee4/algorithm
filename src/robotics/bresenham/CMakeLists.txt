@@ -15,7 +15,6 @@ add_executable(bresenham_test test/bresenham_test.cpp)
 target_link_libraries(bresenham_test PRIVATE gtest gtest_main bresenham)
 gtest_discover_tests(bresenham_test XML_OUTPUT_DIR ${PROJECT_BINARY_DIR}/test-reports)
 
-add_test(NAME gtest_all COMMAND bresenham_test)
 endif()
 
 # main
