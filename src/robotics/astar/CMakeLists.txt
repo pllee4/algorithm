@@ -23,7 +23,6 @@ add_executable(space_time_astar_test test/space_time_astar_test.cpp)
 target_link_libraries(space_time_astar_test PRIVATE gtest gtest_main astar)
 gtest_discover_tests(space_time_astar_test XML_OUTPUT_DIR ${PROJECT_BINARY_DIR}/test-reports)
 
-add_test(NAME gtest_all COMMAND astar_test weighted_astar_test)
 endif()
 
 # main

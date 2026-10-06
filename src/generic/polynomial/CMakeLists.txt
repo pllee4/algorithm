@@ -15,7 +15,6 @@ add_executable(polynomial_test test/polynomial_test.cpp)
 target_link_libraries(polynomial_test PRIVATE gtest gtest_main polynomial)
 gtest_discover_tests(polynomial_test XML_OUTPUT_DIR ${PROJECT_BINARY_DIR}/test-reports)
 
-add_test(NAME gtest_all COMMAND polynomial_test)
 endif()
 
 # main
