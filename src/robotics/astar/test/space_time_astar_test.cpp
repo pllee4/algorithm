@@ -62,7 +62,7 @@ TEST(SpaceTimeAstar, WaitForVertexAndEdgeConstraint) {
   SpaceTimeAstar planner;
   SetUpCorridor(planner);
   planner.SetConstraints(
-      {Constraint::Vertex({3, 2}, 3), Constraint::Edge({2, 2}, {3, 2}, 3)});
+      {VertexConstraint{-1, {3, 2}, 3}, EdgeConstraint{-1, {2, 2}, {3, 2}, 3}});
   EXPECT_TRUE(planner.FindPath());
   const std::vector<Coordinate> expected = {{0, 2}, {1, 2}, {2, 2}, {2, 2},
                                             {3, 2}, {4, 2}, {5, 2}};
@@ -73,7 +73,7 @@ TEST(SpaceTimeAstar, WaitForHoldingTime) {
   SpaceTimeAstar planner;
   SetUpCorridor(planner);
   planner.SetConstraints(
-      {Constraint::Vertex({5, 2}, 5), Constraint::Vertex({5, 2}, 6)});
+      {VertexConstraint{-1, {5, 2}, 5}, VertexConstraint{-1, {5, 2}, 6}});
   EXPECT_TRUE(planner.FindPath());
   const std::vector<Coordinate> expected = {{0, 2}, {1, 2}, {2, 2}, {3, 2},
                                             {4, 2}, {4, 2}, {4, 2}, {5, 2}};
@@ -85,7 +85,7 @@ TEST(SpaceTimeAstar, DetourAroundSealedCorridor) {
   SetUpCorridor(planner);
   std::vector<Constraint> constraints;
   for (auto t = 0; t <= 64; ++t)
-    constraints.push_back(Constraint::Vertex({4, 2}, t));
+    constraints.push_back(VertexConstraint{-1, {4, 2}, t});
   planner.SetConstraints(constraints);
   planner.SetMaxTimestep(64);
   EXPECT_TRUE(planner.FindPath());
@@ -113,7 +113,7 @@ TEST(SpaceTimeAstar, FailedToFindPath) {
   planner.SetMapStorageSize(2, 1);
   planner.SetStartAndDestination({0, 0}, {1, 0});
   planner.SetConstraints(
-      {Constraint::Vertex({0, 0}, 1), Constraint::Vertex({1, 0}, 1)});
+      {VertexConstraint{-1, {0, 0}, 1}, VertexConstraint{-1, {1, 0}, 1}});
   EXPECT_FALSE(planner.FindPath());
   EXPECT_FALSE(planner.GetPath().has_value());
 }
@@ -150,7 +150,7 @@ TEST(SpaceTimeAstar, GetPathWithSettingOfSameStartAndDestination) {
   EXPECT_EQ(planner.GetPath().value().size(), 5u);
 
   // new constraints, can't get path without finding
-  planner.SetConstraints({Constraint::Vertex({2, 2}, 1)});
+  planner.SetConstraints({VertexConstraint{-1, {2, 2}, 1}});
   EXPECT_FALSE(planner.GetPath().has_value());
   EXPECT_TRUE(planner.FindPath());
   EXPECT_EQ(planner.GetPath().value().size(), 6u);
@@ -170,7 +170,7 @@ TEST(SpaceTimeAstar, HeuristicFollowsOccupiedGrid) {
 TEST(SpaceTimeAstar, GetPathAfterReset) {
   SpaceTimeAstar planner;
   SetUpCorridor(planner);
-  planner.SetConstraints({Constraint::Vertex({5, 2}, 5)});
+  planner.SetConstraints({VertexConstraint{-1, {5, 2}, 5}});
   planner.SetMaxTimestep(5);
   EXPECT_FALSE(planner.FindPath());
 

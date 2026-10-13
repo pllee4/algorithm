@@ -94,6 +94,15 @@ class SpaceTimeAstar : public PathFinderInterface {
   void SetConstraints(const std::vector<Constraint> &constraints);
 
   /**
+   * @brief Sets the agent index for ConstraintTable dual behaviour.
+   *
+   * When >= 0, LEQLENGTH constraints branch: the owner gets a length
+   * bound while other agents get a range block. Must be called before
+   * FindPath(); the default (-1) keeps legacy single-agent behaviour.
+   */
+  void SetAgent(int agent);
+
+  /**
    * @brief Sets the latest timestep at which the path may reach the
    * destination. There is no limit until this is called.
    * @param max_timestep The limit.
@@ -196,6 +205,7 @@ class SpaceTimeAstar : public PathFinderInterface {
       heuristic_;  ///< Indexed [x][y]; empty until the next search needs it.
 
   std::vector<Constraint> constraints_;  ///< See SetConstraints().
+  int agent_{-1};                        ///< See SetAgent().
   int max_timestep_{kNoTimestepLimit};   ///< See SetMaxTimestep().
   Coordinate start_{};                   ///< Start cell, at timestep 0.
   Coordinate dest_{};                    ///< Destination cell.

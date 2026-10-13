@@ -63,8 +63,8 @@ int main(int argc, char **argv) {
   // 2. Another agent (from CBS) blocks cell (3,2) at t=3 and the swap 2->3 at
   //    t=3. The agent must wait one timestep instead.
   planner.SetConstraints({
-      Constraint::Vertex({3, 2}, 3),
-      Constraint::Edge({2, 2}, {3, 2}, 3),
+      VertexConstraint{-1, {3, 2}, 3},
+      EdgeConstraint{-1, {2, 2}, {3, 2}, 3},
   });
   planner.FindPath();
   show("blocked at (3,2) t=3", planner.GetPath());
@@ -72,7 +72,7 @@ int main(int argc, char **argv) {
   // 3. The goal itself is constrained at t=5, so arriving at t=5 is not enough:
   //    the holding time pushes the arrival later.
   planner.SetConstraints(
-      {Constraint::Vertex(goal, 5), Constraint::Vertex(goal, 6)});
+      {VertexConstraint{-1, goal, 5}, VertexConstraint{-1, goal, 6}});
   planner.FindPath();
   show("goal blocked until t=6", planner.GetPath());
 
@@ -80,7 +80,7 @@ int main(int argc, char **argv) {
   //    option left is the long detour through the y = 0 row.
   std::vector<Constraint> corridor_sealed;
   for (auto t = 0; t <= 64; ++t)
-    corridor_sealed.push_back(Constraint::Vertex({4, 2}, t));
+    corridor_sealed.push_back(VertexConstraint{-1, {4, 2}, t});
   planner.SetConstraints(corridor_sealed);
   planner.FindPath();
   show("corridor sealed", planner.GetPath());
