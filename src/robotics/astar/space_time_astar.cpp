@@ -90,6 +90,11 @@ void SpaceTimeAstar::SetConstraints(const std::vector<Constraint> &constraints) 
   ClearSearch();
 }
 
+void SpaceTimeAstar::SetAgent(int agent) {
+  agent_ = agent;
+  ClearSearch();
+}
+
 void SpaceTimeAstar::SetMaxTimestep(const int max_timestep) {
   max_timestep_ = max_timestep;
   ClearSearch();
@@ -110,6 +115,9 @@ SpaceTimeAstar::StepOverSpaceTimePathFinding() {
     return std::nullopt;
   }
 
+  const auto max_length = constraint_table_->MaxLength();
+  if (node.t >= max_length) return std::vector<State>{};
+
   auto new_states = std::vector<State>{};
   if (node.t + 1 > max_timestep_) return new_states;
 
@@ -126,6 +134,7 @@ SpaceTimeAstar::StepOverSpaceTimePathFinding() {
     if (constraint_table_->IsBlocked(node.loc, next, next_t))
       continue;  // edge constraint
     if (next_t + heuristic > max_timestep_) continue;  // cannot finish in time
+    if (next_t + heuristic > max_length) continue;
 
     // skip visited
     if (!generated_.insert(State{next, next_t}).second)
@@ -149,7 +158,10 @@ void SpaceTimeAstar::ClearSearch() {
 
 void SpaceTimeAstar::BeginSearch() {
   if (heuristic_.empty()) heuristic_ = BackwardBfs();
-  constraint_table_ = ConstraintTable{constraints_, dest_};
+  constraint_table_ = ConstraintTable{constraints_, dest_, agent_};
+
+  if (constraint_table_->MinLength() > constraint_table_->MaxLength())
+    return;
 
   const auto start_heuristic = Heuristic(start_);
   if (start_heuristic == kInf) return;  // goal unreachable: nothing to do

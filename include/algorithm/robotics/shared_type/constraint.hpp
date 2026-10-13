@@ -2,8 +2,8 @@
  * constraint.hpp
  *
  * Created on: Sep 23, 2026 19:06
- * Description: A CBS constraint: tells one agent where it may NOT be, and the
- * (location, timestep) state of the time-expanded graph it applies to.
+ * Description: CBS constraint types. Each constraint kind is a distinct
+ * struct with only the fields it needs, composed into a std::variant.
  *
  * Copyright (c) 2026 Pin Loon Lee (pllee4)
  */
@@ -12,11 +12,11 @@
 
 #include <cstddef>
 #include <functional>
+#include <variant>
 
 #include "algorithm/robotics/shared_type/data_type.hpp"
 
 namespace pllee4::graph {
-/** @brief A cell at a timestep: one vertex of the time-expanded graph. */
 struct State {
   Coordinate at;
   int t;
@@ -37,33 +37,44 @@ struct StateHash {
   }
 };
 
-/** @brief A CBS constraint: tells one agent where it may NOT be. */
-struct Constraint {
-  enum class Kind {
-    kVertex,  ///< Occupying `a` at timestep `t`.
-    kEdge,    ///< Moving from `a` to `b`, arriving at timestep `t`.
-  };
-  Kind kind{Kind::kVertex};  ///< What is forbidden.
-  Coordinate a{};            ///< The forbidden cell, or where the move starts.
-  Coordinate b{};            ///< Where the move ends; only for Kind::kEdge.
-  int t{};                   ///< Timestep the constraint applies to.
-
-  /**
-   * @brief Makes a vertex constraint.
-   * @param a Cell the agent must not occupy.
-   * @param t Timestep at which `a` is forbidden.
-   * @return The constraint.
-   */
-  static Constraint Vertex(const Coordinate &a, int t);
-
-  /**
-   * @brief Makes an edge constraint, which forbids the swap conflict.
-   * @param a Cell the agent moves from.
-   * @param b Cell the agent moves to.
-   * @param t Timestep at which the agent would arrive at `b`.
-   * @return The constraint.
-   */
-  static Constraint Edge(const Coordinate &a, const Coordinate &b, int t);
+/// Cannot occupy `cell` at time `t`.
+struct VertexConstraint {
+  int agent{-1};
+  Coordinate cell;
+  int t;
 };
+
+/// Cannot move `from` -> `to` arriving at time `t`.
+struct EdgeConstraint {
+  int agent{-1};
+  Coordinate from;
+  Coordinate to;
+  int t;
+};
+
+/// Owner's path length <= `t`; other agents blocked at `goal` from `t`.
+struct LeqLengthConstraint {
+  int agent;
+  Coordinate goal;
+  int t;
+};
+
+/// Owner's path length >= `t + 1`.
+struct GLengthConstraint {
+  int agent;
+  Coordinate goal;
+  int t;
+};
+
+using Constraint = std::variant<VertexConstraint, EdgeConstraint,
+                                LeqLengthConstraint, GLengthConstraint>;
+
+inline int GetTimestep(const Constraint &constraint) {
+  return std::visit([](const auto &v) { return v.t; }, constraint);
+}
+
+inline int GetAgent(const Constraint &constraint) {
+  return std::visit([](const auto &v) { return v.agent; }, constraint);
+}
 
 }  // namespace pllee4::graph
