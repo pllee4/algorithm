@@ -33,8 +33,35 @@ Path CBS::PlanAgent(int agent, const std::vector<Constraint> &constraints) {
   return planners_[agent].GetPath().value_or(Path{});
 }
 
+Solution CBS::GetSolution(const CTNode &node) const {
+  auto solution = Solution(agents_.size());
+  auto found = std::vector<bool>(agents_.size(), false);
+  const CTNode *current = &node;
+  while (current != nullptr) {
+    for (const auto &[agent, path] : current->new_paths) {
+      if (!found[agent]) {
+        solution[agent] = path;
+        found[agent] = true;
+      }
+    }
+    current = current->parent.get();
+  }
+  return solution;
+}
+
+std::vector<Constraint> CBS::GetAllConstraints(const CTNode &node) const {
+  auto constraints = std::vector<Constraint>{};
+  const CTNode *current = &node;
+  while (current != nullptr) {
+    constraints.insert(constraints.end(), current->new_constraints.begin(),
+                       current->new_constraints.end());
+    current = current->parent.get();
+  }
+  return constraints;
+}
+
 std::vector<int> CBS::AgentsToReplan(
-    const CTNode &parent,
+    const Solution &parent_solution,
     const std::vector<Constraint> &new_constraints) const {
   if (new_constraints.empty()) return {};
   const auto &front = new_constraints.front();
@@ -43,7 +70,7 @@ std::vector<int> CBS::AgentsToReplan(
   if (const auto *leq = std::get_if<LeqLengthConstraint>(&front)) {
     for (int agent = 0; agent < static_cast<int>(agents_.size()); ++agent) {
       if (agent == leq->agent) continue;
-      const auto &path = parent.paths[agent];
+      const auto &path = parent_solution[agent];
       for (int t = leq->t; t < static_cast<int>(path.size()); ++t) {
         if (path[t] == leq->goal) {
           agents.push_back(agent);
@@ -68,12 +95,13 @@ CBS::Result CBS::Solve(int time_limit_ms) {
 
   // Root: plan each agent independently.
   auto root = std::make_shared<CTNode>();
-  root->paths.resize(agents_.size());
+  root->new_paths.reserve(agents_.size());
   for (int i = 0; i < static_cast<int>(agents_.size()); ++i) {
-    root->paths[i] = PlanAgent(i, {});
-    if (root->paths[i].empty()) return result;
+    auto path = PlanAgent(i, {});
+    if (path.empty()) return result;
+    root->new_paths.emplace_back(i, std::move(path));
   }
-  root->g = GetSumOfCosts(root->paths);
+  root->g = GetSumOfCosts(GetSolution(*root));
 
   auto cmp = [](const std::shared_ptr<CTNode> &a,
                 const std::shared_ptr<CTNode> &b) {
@@ -94,11 +122,12 @@ CBS::Result CBS::Solve(int time_limit_ms) {
     open.pop();
     ++result.expanded;
 
-    auto conflicts = FindAllConflicts(node->paths);
+    auto solution = GetSolution(*node);
+    auto conflicts = FindAllConflicts(solution);
     if (conflicts.empty()) {
-      result.solution = node->paths;
+      result.solution = std::move(solution);
       result.cost = node->g;
-      result.makespan = GetMakespan(node->paths);
+      result.makespan = GetMakespan(result.solution);
       result.solved = true;
       return result;
     }
@@ -110,27 +139,30 @@ CBS::Result CBS::Solve(int time_limit_ms) {
     }
 
     for (int side = 0; side < 2; ++side) {
-      const auto &new_cs =
+      const auto &new_constraints =
           (side == 0) ? best->constraints1 : best->constraints2;
       auto child = std::make_shared<CTNode>();
-      child->constraints = node->constraints;
-      child->constraints.insert(child->constraints.end(), new_cs.begin(),
-                                new_cs.end());
-      child->paths = node->paths;
+      child->parent = node;
+      child->new_constraints = new_constraints;
       child->depth = node->depth + 1;
 
-      auto to_replan = AgentsToReplan(*node, new_cs);
+      auto all_constraints = GetAllConstraints(*child);
+      auto to_replan = AgentsToReplan(solution, new_constraints);
       auto feasible = true;
-      for (const auto ag : to_replan) {
-        auto path = PlanAgent(ag, child->constraints);
+      for (const auto agent : to_replan) {
+        auto path = PlanAgent(agent, all_constraints);
         if (path.empty()) {
           feasible = false;
           break;
         }
-        child->paths[ag] = std::move(path);
+        child->new_paths.emplace_back(agent, std::move(path));
       }
       if (feasible) {
-        child->g = GetSumOfCosts(child->paths);
+        auto child_solution = solution;
+        for (const auto &[agent, path] : child->new_paths) {
+          child_solution[agent] = path;
+        }
+        child->g = GetSumOfCosts(child_solution);
         open.push(std::move(child));
         ++result.generated;
       }
