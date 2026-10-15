@@ -3,12 +3,13 @@
  *
  * Created on: Oct 04, 2026 10:00
  * Description: Conflict-Based Search (CBS) — the high-level solver. Builds
- * a constraint tree: each node holds a full solution, the best node is
- * expanded by detecting a conflict and branching into two children, each
- * with one side of the split added to its constraint set. The low-level
- * solver (Space-Time A*) replans the affected agents.
+ * a constraint tree: each node stores only the delta from its parent
+ * (new constraints and replanned paths). The full solution and constraint
+ * set are reconstructed by walking the parent chain to the root.
  *
  * Key design choices matching CBSH2-RTC:
+ *  - Delta storage: each CT node holds only new constraints and replanned
+ *    paths, not a full copy. Memory scales with tree depth, not breadth.
  *  - Conflict selection: priority (cardinal > semi > non) then type
  *    (mutex > target > corridor > rectangle > standard).
  *  - LEQLENGTH child triggers a replanning cascade: every agent whose
@@ -20,6 +21,8 @@
 
 #pragma once
 
+#include <memory>
+#include <utility>
 #include <vector>
 
 #include "algorithm/robotics/astar/space_time_astar.hpp"
@@ -59,16 +62,21 @@ class CBS {
 
  private:
   struct CTNode {
-    Solution paths;
-    std::vector<Constraint> constraints;
+    std::shared_ptr<CTNode> parent;
+    std::vector<Constraint> new_constraints;
+    std::vector<std::pair<int, Path>> new_paths;
     int g{};
     int depth{};
   };
 
   Path PlanAgent(int agent, const std::vector<Constraint> &constraints);
 
+  Solution GetSolution(const CTNode &node) const;
+
+  std::vector<Constraint> GetAllConstraints(const CTNode &node) const;
+
   std::vector<int> AgentsToReplan(
-      const CTNode &parent,
+      const Solution &parent_solution,
       const std::vector<Constraint> &new_constraints) const;
 
   std::vector<Agent> agents_;
