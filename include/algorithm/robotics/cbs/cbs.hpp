@@ -27,6 +27,7 @@
 
 #include "algorithm/robotics/astar/space_time_astar.hpp"
 #include "algorithm/robotics/cbs/conflict.hpp"
+#include "algorithm/robotics/cbs/mdd.hpp"
 #include "algorithm/robotics/shared_type/constraint.hpp"
 #include "algorithm/robotics/shared_type/data_type.hpp"
 
@@ -75,10 +76,17 @@ class CBS {
 
   std::vector<Constraint> GetAllConstraints(const CTNode &node) const;
 
+  void ClassifyConflicts(std::vector<Conflict> &conflicts,
+                         const Solution &solution,
+                         const std::vector<Constraint> &all_constraints);
+
   std::vector<int> AgentsToReplan(
       const Solution &parent_solution,
       const std::vector<Constraint> &new_constraints) const;
 
+  int width_;
+  int height_;
+  std::vector<Coordinate> obstacles_;
   std::vector<Agent> agents_;
   std::vector<SpaceTimeAstar> planners_;
 };
