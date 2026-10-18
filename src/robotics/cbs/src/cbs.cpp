@@ -13,12 +13,17 @@
 #include <chrono>
 #include <memory>
 #include <queue>
+#include <unordered_map>
 
 namespace pllee4::graph {
 
 CBS::CBS(int width, int height, const std::vector<Coordinate> &obstacles,
          const std::vector<Agent> &agents)
-    : agents_(agents), planners_(agents.size()) {
+    : width_(width),
+      height_(height),
+      obstacles_(obstacles),
+      agents_(agents),
+      planners_(agents.size()) {
   for (int i = 0; i < static_cast<int>(agents.size()); ++i) {
     planners_[i].SetMapStorageSize(width, height);
     planners_[i].SetOccupiedGrid(obstacles);
@@ -58,6 +63,45 @@ std::vector<Constraint> CBS::GetAllConstraints(const CTNode &node) const {
     current = current->parent.get();
   }
   return constraints;
+}
+
+void CBS::ClassifyConflicts(std::vector<Conflict> &conflicts,
+                            const Solution &solution,
+                            const std::vector<Constraint> &all_constraints) {
+  auto mdds = std::unordered_map<int, MDD>{};
+
+  auto classify_agent = [&solution, &all_constraints, &mdds, this](
+                            int agent, const Conflict &conflict) -> bool {
+    const int timestep = conflict.timestep;
+    const auto &path = solution[agent];
+    if (timestep >= static_cast<int>(path.size())) return true;
+
+    if (mdds.find(agent) == mdds.end()) {
+      const int cost = static_cast<int>(path.size()) - 1;
+      mdds.try_emplace(agent, MDD(width_, height_, obstacles_, agents_[agent].start,
+                       agents_[agent].goal, all_constraints, agent, cost));
+    }
+    const auto &mdd = mdds.at(agent);
+
+    const bool is_edge =
+        !conflict.constraints1.empty() &&
+        std::holds_alternative<EdgeConstraint>(conflict.constraints1.front());
+    if (is_edge)
+      return mdd.IsSingleton(timestep) && mdd.IsSingleton(timestep - 1);
+    return mdd.IsSingleton(timestep);
+  };
+
+  for (auto &conflict : conflicts) {
+    const bool cardinal1 = classify_agent(conflict.agent1, conflict);
+    const bool cardinal2 = classify_agent(conflict.agent2, conflict);
+
+    if (cardinal1 && cardinal2)
+      conflict.priority = Conflict::Priority::kCardinal;
+    else if (cardinal1 || cardinal2)
+      conflict.priority = Conflict::Priority::kSemi;
+    else
+      conflict.priority = Conflict::Priority::kNon;
+  }
 }
 
 std::vector<int> CBS::AgentsToReplan(
@@ -131,6 +175,10 @@ CBS::Result CBS::Solve(int time_limit_ms) {
       result.solved = true;
       return result;
     }
+
+    // Classify conflicts using MDD cardinality analysis.
+    auto all_constraints = GetAllConstraints(*node);
+    ClassifyConflicts(conflicts, solution, all_constraints);
 
     // Choose the best conflict to branch on.
     auto best = conflicts.begin();

@@ -1,0 +1,654 @@
+<title>MDD Construction</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap">
+
+<style>
+/* Layout: single column — grid diagram, DAG, stepper, description */
+:root {
+  --bg: #f5f5fa; --fg: #1c1c30; --surface: #fff; --border: #dde0ea;
+  --muted: #6a6a84; --muted2: #9999aa;
+  --nf: #d6e4f2; --ns: #4578ad; --nt: #2a4a6a;
+  --pf: #fce4e4; --ps: #c0392b; --pt: #8b1a1a;
+  --sf: #d4f0e0; --ss: #22885a; --st: #1a5a3a;
+  --heur: #8b6db0; --hf: #ede4f5;
+  --constr: #d4760a; --cf: #fff3e0;
+  --ec: #a0a8b8; --ep: #d4a0a0;
+  --chk: rgba(69,120,173,0.07);
+  --bb: #4578ad; --bf: #fff; --bd: #c8c8d8;
+  --cb: #eeeef4;
+  --grid-wall: #555568; --grid-free: #e8e8f0; --grid-agent: #4578ad;
+  --grid-goal: #c0392b; --grid-path: #5b9bd5;
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0e0e1c; --fg:#dddde8; --surface:#171730; --border:#28283e;
+  --muted:#8888a2; --muted2:#5a5a70;
+  --nf:#1c2c40; --ns:#5b9bd5; --nt:#a8c8e8;
+  --pf:#3c1c1c; --ps:#e74c3c; --pt:#f0a0a0;
+  --sf:#1c3828; --ss:#2ecc71; --st:#80e0a8;
+  --heur:#9a7dbe; --hf:#2a2040;
+  --constr:#e8960a; --cf:#2e2410;
+  --ec:#3c4458; --ep:#5c3030;
+  --chk:rgba(91,155,213,0.06);
+  --bb:#5b9bd5; --bf:#0e0e1c; --bd:#28283e;
+  --cb:#14142a;
+  --grid-wall:#888; --grid-free:#222238; --grid-agent:#5b9bd5;
+  --grid-goal:#e74c3c; --grid-path:#5b9bd5;
+  color-scheme:dark
+}}
+:root[data-theme="dark"]{
+  --bg:#0e0e1c; --fg:#dddde8; --surface:#171730; --border:#28283e;
+  --muted:#8888a2; --muted2:#5a5a70;
+  --nf:#1c2c40; --ns:#5b9bd5; --nt:#a8c8e8;
+  --pf:#3c1c1c; --ps:#e74c3c; --pt:#f0a0a0;
+  --sf:#1c3828; --ss:#2ecc71; --st:#80e0a8;
+  --heur:#9a7dbe; --hf:#2a2040;
+  --constr:#e8960a; --cf:#2e2410;
+  --ec:#3c4458; --ep:#5c3030;
+  --chk:rgba(91,155,213,0.06);
+  --bb:#5b9bd5; --bf:#0e0e1c; --bd:#28283e;
+  --cb:#14142a;
+  --grid-wall:#888; --grid-free:#222238; --grid-agent:#5b9bd5;
+  --grid-goal:#e74c3c; --grid-path:#5b9bd5;
+  color-scheme:dark
+}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:'Inter',system-ui,sans-serif;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:20px;max-width:840px;margin:0 auto}
+
+h1{font-family:'JetBrains Mono',monospace;font-size:1.15rem;font-weight:600;
+  margin:0 0 4px;letter-spacing:-.01em}
+h2{font-family:'JetBrains Mono',monospace;font-size:.92rem;font-weight:600;
+  margin:24px 0 8px;letter-spacing:-.01em}
+.sub{color:var(--muted);font-size:.82rem;margin:0 0 20px;line-height:1.55}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:8px;
+  overflow:hidden;margin-bottom:14px}
+.card-body{padding:16px}
+.graph-wrap{padding:12px 8px;overflow-x:auto}
+.graph-wrap svg{display:block;margin:0 auto}
+
+.bar{display:flex;align-items:center;gap:10px;padding:8px 14px;
+  border-top:1px solid var(--border);background:var(--cb)}
+.bar button{font-family:'JetBrains Mono',monospace;font-size:.75rem;
+  padding:5px 14px;border:none;border-radius:4px;cursor:pointer;
+  background:var(--bb);color:var(--bf);transition:opacity .15s}
+.bar button:disabled{background:var(--bd);color:var(--muted);cursor:default;opacity:.6}
+.slab{font-family:'JetBrains Mono',monospace;font-size:.72rem;
+  color:var(--muted);flex:1;text-align:center;font-variant-numeric:tabular-nums}
+
+.desc{font-size:.83rem;line-height:1.7;padding:14px 18px;min-height:80px}
+.desc strong{font-weight:600}
+.hp{color:var(--ps);font-weight:600}
+.hs{color:var(--ss);font-weight:600}
+.hh{color:var(--heur);font-weight:500}
+.hc{color:var(--constr);font-weight:500}
+
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.72rem;color:var(--muted);margin-top:14px}
+.legend-i{display:flex;align-items:center;gap:5px}
+.ldot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+
+/* Grid diagram */
+.grid-section{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start}
+.grid-fig{flex:0 0 auto}
+.grid-fig svg text{font-family:'JetBrains Mono',monospace}
+.grid-info{flex:1 1 200px;min-width:0;font-size:.82rem;line-height:1.65;color:var(--fg)}
+.grid-info code{font-family:'JetBrains Mono',monospace;font-size:.78rem;
+  background:var(--cb);padding:1px 5px;border-radius:3px}
+
+/* DAG SVG state classes — using CSS classes so var() resolves via the cascade */
+svg .nc{stroke-width:2;transition:fill .3s,stroke .3s,opacity .3s}
+svg .nc.s-a{fill:var(--nf);stroke:var(--ns);opacity:1}
+svg .nc.s-p{fill:var(--pf);stroke:var(--ps);opacity:.45;stroke-dasharray:4 2}
+svg .nc.s-s{fill:var(--sf);stroke:var(--ss);opacity:1}
+svg .nl{transition:fill .3s,opacity .3s;font-family:'JetBrains Mono',monospace}
+svg .nl.s-a{fill:var(--nt);opacity:1}
+svg .nl.s-p{fill:var(--pt);opacity:.45}
+svg .nl.s-s{fill:var(--st);opacity:1}
+svg .el{transition:stroke .3s,opacity .3s}
+svg .el.s-a{stroke:var(--ec);stroke-width:1.5;opacity:.5}
+svg .el.s-p{stroke:var(--ep);stroke-width:1;opacity:.18;stroke-dasharray:4 3}
+svg .el.s-s{stroke:var(--ss);stroke-width:1.5;opacity:.6}
+svg .fwd-node{fill:var(--nf);stroke:var(--ns);stroke-width:2}
+svg .fwd-label{fill:var(--nt);font-family:'JetBrains Mono',monospace}
+svg .fwd-edge{stroke:var(--ec);stroke-width:1.5}
+svg .lbg{fill:var(--chk);transition:opacity .3s}
+svg .tlbl{font-family:'JetBrains Mono',monospace;font-size:12px;fill:var(--muted)}
+
+/* Phase tabs */
+.tabs{display:flex;gap:0;margin-bottom:14px}
+.tab{flex:1;padding:8px 12px;text-align:center;font-family:'JetBrains Mono',monospace;
+  font-size:.78rem;cursor:pointer;border:1px solid var(--border);
+  background:var(--cb);color:var(--muted);transition:background .2s,color .2s}
+.tab:first-child{border-radius:6px 0 0 6px}
+.tab:last-child{border-radius:0 6px 6px 0}
+.tab:not(:first-child){border-left:0}
+.tab.active{background:var(--bb);color:var(--bf);border-color:var(--bb)}
+</style>
+
+<h1>MDD Construction: Forward &amp; Backward Pass</h1>
+<p class="sub">
+  The Multi-valued Decision Diagram stores all optimal-cost paths from Start to Goal,
+  organized by timestep. It is built in two passes over <code style="font-family:'JetBrains Mono',monospace;font-size:.78rem;background:var(--cb);padding:1px 5px;border-radius:3px">levels_</code>.
+</p>
+
+<!-- Grid example -->
+<h2>Example Setup</h2>
+<div class="card"><div class="card-body">
+  <div class="grid-section">
+    <div class="grid-fig">
+      <svg viewBox="0 0 200 200" width="180" height="180">
+        <!-- 4x4 grid cells -->
+        <rect x="10" y="10" width="40" height="40" rx="4" fill="var(--nf)" stroke="var(--ns)" stroke-width="1"/>
+        <rect x="55" y="10" width="40" height="40" rx="4" fill="var(--grid-free)" stroke="var(--border)" stroke-width="1"/>
+        <rect x="100" y="10" width="40" height="40" rx="4" fill="var(--grid-free)" stroke="var(--border)" stroke-width="1"/>
+        <rect x="145" y="10" width="40" height="40" rx="4" fill="var(--grid-free)" stroke="var(--border)" stroke-width="1"/>
+
+        <rect x="10" y="55" width="40" height="40" rx="4" fill="var(--grid-free)" stroke="var(--border)" stroke-width="1"/>
+        <rect x="55" y="55" width="40" height="40" rx="4" fill="var(--grid-wall)" stroke="var(--grid-wall)" stroke-width="1" opacity=".35"/>
+        <rect x="100" y="55" width="40" height="40" rx="4" fill="var(--grid-free)" stroke="var(--border)" stroke-width="1"/>
+        <rect x="145" y="55" width="40" height="40" rx="4" fill="var(--grid-free)" stroke="var(--border)" stroke-width="1"/>
+
+        <rect x="10" y="100" width="40" height="40" rx="4" fill="var(--grid-free)" stroke="var(--border)" stroke-width="1"/>
+        <rect x="55" y="100" width="40" height="40" rx="4" fill="var(--grid-free)" stroke="var(--border)" stroke-width="1"/>
+        <rect x="100" y="100" width="40" height="40" rx="4" fill="var(--grid-free)" stroke="var(--border)" stroke-width="1"/>
+        <rect x="145" y="100" width="40" height="40" rx="4" fill="var(--grid-free)" stroke="var(--border)" stroke-width="1"/>
+
+        <rect x="10" y="145" width="40" height="40" rx="4" fill="var(--grid-free)" stroke="var(--border)" stroke-width="1"/>
+        <rect x="55" y="145" width="40" height="40" rx="4" fill="var(--grid-free)" stroke="var(--border)" stroke-width="1"/>
+        <rect x="100" y="145" width="40" height="40" rx="4" fill="var(--grid-free)" stroke="var(--border)" stroke-width="1"/>
+        <rect x="145" y="145" width="40" height="40" rx="4" fill="var(--pf)" stroke="var(--ps)" stroke-width="1"/>
+
+        <!-- Labels -->
+        <text x="30" y="35" text-anchor="middle" fill="var(--ns)" font-size="13" font-weight="600">S</text>
+        <text x="75" y="80" text-anchor="middle" fill="var(--grid-wall)" font-size="11" font-weight="500">wall</text>
+        <text x="165" y="170" text-anchor="middle" fill="var(--ps)" font-size="13" font-weight="600">G</text>
+
+        <!-- Coordinate labels -->
+        <text x="30" y="198" text-anchor="middle" fill="var(--muted2)" font-size="9">0</text>
+        <text x="75" y="198" text-anchor="middle" fill="var(--muted2)" font-size="9">1</text>
+        <text x="120" y="198" text-anchor="middle" fill="var(--muted2)" font-size="9">2</text>
+        <text x="165" y="198" text-anchor="middle" fill="var(--muted2)" font-size="9">3</text>
+        <text x="3" y="35" text-anchor="end" fill="var(--muted2)" font-size="9">0</text>
+        <text x="3" y="80" text-anchor="end" fill="var(--muted2)" font-size="9">1</text>
+        <text x="3" y="125" text-anchor="end" fill="var(--muted2)" font-size="9">2</text>
+        <text x="3" y="170" text-anchor="end" fill="var(--muted2)" font-size="9">3</text>
+      </svg>
+    </div>
+    <div class="grid-info">
+      <strong>4 &times; 4 grid</strong>, Start = (0,0), Goal = (3,3)<br>
+      Obstacle at (1,1). <code>optimal_cost = 6</code><br><br>
+      Agent has a <span class="hc">constraint</span>: blocked from (3,2) at t=5 (another agent is there).<br><br>
+      The heuristic (BFS from Goal, ignoring agents) gives the shortest distance from any cell to Goal.
+      The forward pass uses it to prune cells that are too far away.
+    </div>
+  </div>
+</div></div>
+
+<!-- Phase tabs -->
+<div class="tabs">
+  <div class="tab active" id="tab-fwd" onclick="setPhase('fwd')">Forward Pass</div>
+  <div class="tab" id="tab-bwd" onclick="setPhase('bwd')">Why Backward?</div>
+  <div class="tab" id="tab-dag" onclick="setPhase('dag')">Backward Pass</div>
+</div>
+
+<!-- Forward pass content -->
+<div id="phase-fwd">
+  <div class="card">
+    <div class="graph-wrap">
+      <svg id="fwd-graph" viewBox="0 0 760 380" width="100%" style="min-width:540px"></svg>
+    </div>
+    <div class="bar">
+      <button id="fp" onclick="fwdGo(-1)">&#8592;</button>
+      <span class="slab" id="fsl"></span>
+      <button id="fn" onclick="fwdGo(1)">&#8594;</button>
+    </div>
+  </div>
+  <div class="card"><div class="desc" id="fdesc"></div></div>
+</div>
+
+<!-- Why backward content -->
+<div id="phase-bwd" hidden>
+  <div class="card"><div class="card-body" style="font-size:.84rem;line-height:1.7">
+    <strong>The forward pass is greedy — it can't see the future.</strong><br><br>
+    At each timestep t, it adds every cell that is:
+    <ol style="margin:8px 0 8px 20px;padding:0">
+      <li>Reachable from some cell in <code>levels_[t]</code></li>
+      <li>Close enough to Goal: <code>t+1 + h(cell) &le; optimal_cost</code></li>
+      <li>Not blocked by a vertex or edge constraint at t+1</li>
+    </ol>
+    But it never checks whether a cell at t+1 can <em>actually</em> reach Goal through
+    <code>levels_[t+2], levels_[t+3], ...</code> — constraints at future timesteps might block
+    every onward path.<br><br>
+
+    <strong>Example:</strong> Cell (3,1) at t=4 passes all forward checks —
+    it's reachable from (3,0) at t=3, and <code>4 + h(3,1) = 4+2 = 6 = optimal_cost</code> ✓.
+    Its only h-feasible successor is (3,2) at t=5. But (3,2) is
+    <span class="hc">blocked at t=5</span> by another agent's constraint.
+    So (3,1) at t=4 is a <span class="hp">dead end</span> — reachable from Start,
+    but unable to reach Goal.<br><br>
+
+    The <span class="hs">backward pass</span> catches this: starting from Goal and working back,
+    it keeps only cells that can reach a survivor at the next level.
+    Dead ends are pruned, and the pruning <em>cascades</em>: (3,1) is pruned,
+    which makes (3,0) at t=3 a dead end too (its only successor was (3,1)).
+    Meanwhile, paths through (2,3) at t=5 survive.
+  </div></div>
+</div>
+
+<!-- Backward pass DAG content -->
+<div id="phase-dag" hidden>
+  <div class="card">
+    <div class="graph-wrap">
+      <svg id="graph" viewBox="0 0 720 420" width="100%" style="min-width:520px"></svg>
+    </div>
+    <div class="bar">
+      <button id="bp" onclick="dagGo(-1)">&#8592;</button>
+      <span class="slab" id="dsl"></span>
+      <button id="bn" onclick="dagGo(1)">&#8594;</button>
+    </div>
+  </div>
+  <div class="card"><div class="desc" id="ddesc"></div></div>
+  <div class="legend">
+    <div class="legend-i"><div class="ldot" style="background:var(--nf);border:2px solid var(--ns)"></div> Active</div>
+    <div class="legend-i"><div class="ldot" style="background:var(--sf);border:2px solid var(--ss)"></div> Surviving set</div>
+    <div class="legend-i"><div class="ldot" style="background:var(--pf);border:2px solid var(--ps);opacity:.55"></div> Pruned</div>
+  </div>
+</div>
+
+<script>
+const NS='http://www.w3.org/2000/svg';
+function el(tag,attrs){
+  const e=document.createElementNS(NS,tag);
+  for(const[k,v]of Object.entries(attrs))e.setAttribute(k,v);
+  return e;
+}
+
+/* ===== PHASE SWITCHING ===== */
+let phase='fwd';
+function setPhase(p){
+  phase=p;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+p).classList.add('active');
+  document.getElementById('phase-fwd').hidden=p!=='fwd';
+  document.getElementById('phase-bwd').hidden=p!=='bwd';
+  document.getElementById('phase-dag').hidden=p!=='dag';
+}
+
+/* ===== FORWARD PASS VISUALIZATION ===== */
+const GRID=4, CELL=50, PAD=20, GAP=14;
+const wall={x:1,y:1};
+const constraints=[{x:3,y:2,t:5}];
+const goalC={x:3,y:3};
+const startC={x:0,y:0};
+
+// Heuristic (BFS from goal ignoring agents)
+function computeH(){
+  const h=Array.from({length:GRID},()=>Array(GRID).fill(999));
+  h[goalC.x][goalC.y]=0;
+  const q=[goalC];
+  const dirs=[[0,1],[0,-1],[1,0],[-1,0]];
+  while(q.length){
+    const c=q.shift();
+    for(const[dx,dy]of dirs){
+      const nx=c.x+dx,ny=c.y+dy;
+      if(nx<0||ny<0||nx>=GRID||ny>=GRID)continue;
+      if(nx===wall.x&&ny===wall.y)continue;
+      if(h[nx][ny]<=h[c.x][c.y]+1)continue;
+      h[nx][ny]=h[c.x][c.y]+1;
+      q.push({x:nx,y:ny});
+    }
+  }
+  return h;
+}
+const heur=computeH();
+const optCost=6;
+
+// Forward pass simulation
+function simForward(){
+  const levels=[new Set()];
+  levels[0].add(startC.x+','+startC.y);
+  const dirs=[[0,1],[0,-1],[1,0],[-1,0],[0,0]];
+  for(let t=0;t<optCost;t++){
+    const next=new Set();
+    for(const k of levels[t]){
+      const[lx,ly]=k.split(',').map(Number);
+      for(const[dx,dy]of dirs){
+        const nx=lx+dx,ny=ly+dy;
+        if(nx<0||ny<0||nx>=GRID||ny>=GRID)continue;
+        if(nx===wall.x&&ny===wall.y)continue;
+        if(heur[nx][ny]===999)continue;
+        if((t+1)+heur[nx][ny]>optCost)continue;
+        // Vertex constraint
+        if(constraints.some(c=>nx===c.x&&ny===c.y&&(t+1)===c.t))continue;
+        next.add(nx+','+ny);
+      }
+    }
+    levels.push(next);
+  }
+  // Goal filter on last level
+  const last=new Set();
+  if(levels[optCost].has(goalC.x+','+goalC.y))last.add(goalC.x+','+goalC.y);
+  levels[optCost]=last;
+  return levels;
+}
+const fwdLevels=simForward();
+
+// Forward pass steps: show one level at a time
+const fwdSteps=[];
+fwdSteps.push({
+  t:-1,
+  html:`<strong>levels_</strong> stores a vector of vectors — one per timestep from 0 to <code>optimal_cost</code>.<br><br>
+  <code>levels_[0] = {start}</code> — only the start cell at t=0.<br>
+  The forward pass will expand outward, adding cells reachable at each successive timestep.`
+});
+for(let t=0;t<=optCost;t++){
+  const cells=[...fwdLevels[t]].map(k=>{const[x,y]=k.split(',').map(Number);return{x,y};});
+  const cellStr=cells.map(c=>'('+c.x+','+c.y+')').join(', ');
+  let html;
+  if(t===0){
+    html=`<strong>t = 0:</strong> {${cellStr}}<br><br>Just the start cell.`;
+  } else if(t===optCost){
+    html=`<strong>t = ${t}:</strong> {${cellStr}}<br><br>
+    <strong>Goal filter applied.</strong> Only Goal (3,3) survives at the last level —
+    any other cell here can't be the endpoint of an optimal path.`;
+  } else {
+    // Check if constraint blocked something
+    let note='';
+    if(t===5){
+      note='<br><br><span class="hc">Constraint:</span> (3,2) is blocked at t=5 — another agent occupies it.';
+    }
+    const filtered=[];
+    // Show what heuristic filtered
+    html=`<strong>t = ${t}:</strong> ${cells.length} cells<br>
+    {${cellStr}}<br><br>
+    For each cell in levels_[${t-1}], expand neighbors + wait.
+    Keep only cells where <code>t + h(cell) &le; ${optCost}</code> and not blocked by constraints.${note}`;
+  }
+  fwdSteps.push({t, html});
+}
+
+// Build forward SVG
+const fsvg=document.getElementById('fwd-graph');
+const LX=[]; // x positions for each level column
+const LW=90; // column width
+for(let t=0;t<=optCost;t++) LX.push(PAD+30+t*((760-2*PAD-60)/(optCost)));
+
+// Level labels
+for(let t=0;t<=optCost;t++){
+  const txt=el('text',{x:LX[t],y:18,class:'tlbl','text-anchor':'middle'});
+  txt.textContent='t='+t;
+  fsvg.appendChild(txt);
+}
+
+// Grid cells at each level
+const fwdNodes={};
+for(let t=0;t<=optCost;t++){
+  const cells=[...fwdLevels[t]].map(k=>{const[x,y]=k.split(',').map(Number);return{x,y,k};});
+  cells.sort((a,b)=>a.y-b.y||a.x-b.x);
+  const n=cells.length;
+  const totalH=300;
+  const topP=40;
+  cells.forEach((c,i)=>{
+    const cy=n===1?topP+totalH/2:topP+i/(n-1)*totalH;
+    const cx=LX[t];
+    const r=18;
+    const circle=el('circle',{
+      id:'fn-'+t+'-'+c.k, class:'fwd-node', cx, cy, r, opacity:0
+    });
+    fsvg.appendChild(circle);
+    const isGoal=c.x===goalC.x&&c.y===goalC.y;
+    const isStart=c.x===startC.x&&c.y===startC.y;
+    let label='('+c.x+','+c.y+')';
+    if(isGoal&&t===optCost)label='★';
+    else if(isStart&&t===0)label='S';
+    const txt=el('text',{
+      id:'ft-'+t+'-'+c.k, class:'fwd-label', x:cx, y:cy+4,
+      'text-anchor':'middle',
+      'font-size': label.length>3?'9':'11', 'font-weight':'500', opacity:0
+    });
+    txt.textContent=label;
+    fsvg.appendChild(txt);
+    fwdNodes[t+'-'+c.k]={cx,cy};
+  });
+}
+
+// Edges between consecutive levels
+const fwdEdges=[];
+const dirs=[[0,1],[0,-1],[1,0],[-1,0],[0,0]];
+for(let t=0;t<optCost;t++){
+  for(const pk of fwdLevels[t]){
+    const[px,py]=pk.split(',').map(Number);
+    for(const[dx,dy]of dirs){
+      const nx=px+dx,ny=py+dy;
+      const nk=nx+','+ny;
+      if(fwdLevels[t+1].has(nk)){
+        const from=fwdNodes[t+'-'+pk];
+        const to=fwdNodes[(t+1)+'-'+nk];
+        if(from&&to){
+          const line=el('line',{
+            id:'fe-'+t+'-'+pk+'-'+nk, class:'fwd-edge',
+            x1:from.cx, y1:from.cy, x2:to.cx, y2:to.cy, opacity:0
+          });
+          fsvg.insertBefore(line,fsvg.querySelector('.nc'));
+          fwdEdges.push({t,from:pk,to:nk});
+        }
+      }
+    }
+  }
+}
+
+let fwdCur=0;
+function fwdRender(){
+  const s=fwdSteps[fwdCur];
+  const showUpTo=s.t;
+  // Show/hide nodes and edges
+  for(let t=0;t<=optCost;t++){
+    for(const k of fwdLevels[t]){
+      const c=document.getElementById('fn-'+t+'-'+k);
+      const tx=document.getElementById('ft-'+t+'-'+k);
+      if(c){
+        const show=t<=showUpTo;
+        c.setAttribute('opacity',show?'1':'0');
+        tx.setAttribute('opacity',show?'1':'0');
+      }
+    }
+  }
+  for(const e of fwdEdges){
+    const line=document.getElementById('fe-'+e.t+'-'+e.from+'-'+e.to);
+    if(line){
+      const show=e.t<showUpTo;
+      line.setAttribute('opacity',show?'.35':'0');
+    }
+  }
+  document.getElementById('fsl').textContent='Step '+(fwdCur+1)+' / '+fwdSteps.length;
+  document.getElementById('fp').disabled=fwdCur===0;
+  document.getElementById('fn').disabled=fwdCur===fwdSteps.length-1;
+  document.getElementById('fdesc').innerHTML=s.html;
+}
+function fwdGo(d){fwdCur=Math.max(0,Math.min(fwdSteps.length-1,fwdCur+d));fwdRender();}
+fwdRender();
+
+/* ===== BACKWARD PASS (REAL MDD) ===== */
+const dsvg=document.getElementById('graph');
+dsvg.setAttribute('viewBox','0 0 740 410');
+
+const dagLX=[52,160,268,376,484,592,692];
+const dagTH=300,dagTP=55;
+function fmt(k){return'('+k+')'}
+
+// Position nodes from forward-pass levels
+const dagNodePos={};
+const dagNodeIds=[];
+for(let t=0;t<=optCost;t++){
+  const cells=[...fwdLevels[t]].map(k=>{const[x,y]=k.split(',').map(Number);return{x,y,k}});
+  cells.sort((a,b)=>a.y-b.y||a.x-b.x);
+  const n=cells.length;
+  cells.forEach((c,i)=>{
+    const cy=n===1?dagTP+dagTH/2:dagTP+i/(n-1)*dagTH;
+    const id=t+'-'+c.k;
+    dagNodePos[id]={cx:dagLX[t],cy,t,k:c.k};
+    dagNodeIds.push(id);
+  });
+}
+
+// Compute edges between consecutive levels
+const dagEdgeList=[];
+for(let t=0;t<optCost;t++){
+  for(const pk of fwdLevels[t]){
+    const[px,py]=pk.split(',').map(Number);
+    for(const[dx,dy]of dirs){
+      const nx=px+dx,ny=py+dy,nk=nx+','+ny;
+      if(fwdLevels[t+1].has(nk)){
+        const eid=t+'-'+pk+'>'+(t+1)+'-'+nk;
+        if(!dagEdgeList.some(e=>e.id===eid))
+          dagEdgeList.push({id:eid,from:t+'-'+pk,to:(t+1)+'-'+nk});
+      }
+    }
+  }
+}
+
+// Simulate backward pruning
+const bwdL=fwdLevels.map(s=>new Set(s));
+const bwdRecord=[];
+for(let t=optCost-1;t>=0;t--){
+  const surv=bwdL[t+1];
+  const prunedHere=[];
+  const kept=new Set();
+  for(const k of bwdL[t]){
+    const[lx,ly]=k.split(',').map(Number);
+    let ok=false;
+    for(const[dx,dy]of dirs){
+      const nx=lx+dx,ny=ly+dy;
+      if(nx<0||ny<0||nx>=GRID||ny>=GRID)continue;
+      if(nx===wall.x&&ny===wall.y)continue;
+      if(surv.has(nx+','+ny)){ok=true;break}
+    }
+    if(ok)kept.add(k);else prunedHere.push(k);
+  }
+  bwdL[t]=kept;
+  bwdRecord.push({t,pruned:prunedHere,survKeys:[...surv]});
+}
+
+// Build step data
+const allPruned=new Set();
+const dagSteps=[];
+const totalNodes=dagNodeIds.length;
+
+dagSteps.push({pruned:new Set(),surv:new Set(),cl:-1,
+  html:`<strong>After forward pass + goal filter.</strong>
+  ${totalNodes} nodes across ${optCost+1} levels (t=0 to t=${optCost}).
+  The backward pass checks from <strong>t=${optCost-1}</strong> down to t=0,
+  matching the code: <code>for(int t = optimal_cost-1; t >= 0; --t)</code>.`});
+
+for(const rec of bwdRecord){
+  const survIds=rec.survKeys.map(k=>(rec.t+1)+'-'+k);
+  const prunedIds=rec.pruned.map(k=>rec.t+'-'+k);
+  for(const p of prunedIds)allPruned.add(p);
+
+  const survStr=rec.survKeys.map(k=>rec.t+1===optCost?'★':fmt(k)).join(', ');
+  const levelKeys=[...fwdLevels[rec.t]].sort();
+  let html=`<strong>t = ${rec.t}:</strong> Check against surviving t=${rec.t+1} = <span class="hs">{${survStr}}</span>.<br><br>`;
+  for(const k of levelKeys){
+    const id=rec.t+'-'+k;
+    const pruned=prunedIds.includes(id);
+    if(pruned) html+=`<strong>${fmt(k)}</strong> → no surviving successor <span class="hp">✗ pruned</span><br>`;
+    else html+=`<strong>${fmt(k)}</strong> <span class="hs">✓</span><br>`;
+  }
+  if(rec.pruned.length>0&&allPruned.size>rec.pruned.length)
+    html+=`<br><em>Cascade:</em> prior pruning created new dead ends.`;
+  else if(rec.pruned.length===0)
+    html+=`<br>No pruning at this level.`;
+
+  if(rec.pruned.length>0||rec.t===optCost-1){
+    dagSteps.push({pruned:new Set(allPruned),surv:new Set(survIds),cl:rec.t,html});
+  }
+}
+
+const prunedList=[...allPruned].map(id=>{
+  const t=id.split('-')[0];
+  const k=id.substring(id.indexOf('-')+1);
+  return fmt(k)+'@t='+t;
+}).join(', ');
+dagSteps.push({pruned:new Set(allPruned),surv:new Set(),cl:-1,final:true,
+  html:`<strong>Final MDD:</strong> ${allPruned.size} of ${totalNodes} nodes pruned.
+  Every surviving node lies on at least one optimal-cost path from (0,0) to (3,3).<br><br>
+  ${allPruned.size>0?'Pruned: <span class="hp">'+prunedList+'</span>. The constraint at (3,2)@t=5 caused (3,1)@t=4 to lose its only successor, which cascaded to (3,0)@t=3.':'No nodes were pruned.'}`});
+
+// Build DAG SVG
+for(let l=0;l<=optCost;l++){
+  dsvg.appendChild(el('rect',{
+    id:'dlbg'+l,class:'lbg',x:dagLX[l]-42,y:28,width:84,height:378,rx:6,opacity:0
+  }));
+}
+for(let l=0;l<=optCost;l++){
+  const t=el('text',{x:dagLX[l],y:18,class:'tlbl','text-anchor':'middle'});
+  t.textContent='t='+l;
+  dsvg.appendChild(t);
+}
+for(const e of dagEdgeList){
+  const f=dagNodePos[e.from],t=dagNodePos[e.to];
+  dsvg.appendChild(el('line',{
+    id:'de-'+e.id,class:'el s-a',x1:f.cx,y1:f.cy,x2:t.cx,y2:t.cy
+  }));
+}
+for(const id of dagNodeIds){
+  const p=dagNodePos[id];
+  const isGoal=id===optCost+'-'+goalC.x+','+goalC.y;
+  const isStart=id==='0-'+startC.x+','+startC.y;
+  const r=isGoal?22:18;
+  dsvg.appendChild(el('circle',{id:'dn-'+id,class:'nc s-a',cx:p.cx,cy:p.cy,r}));
+  let label=isGoal?'★':isStart?'S':fmt(p.k);
+  const t=el('text',{
+    id:'dl-'+id,class:'nl s-a',x:p.cx,y:p.cy+(isGoal?5:4),
+    'text-anchor':'middle','font-size':label.length>3?'9':'12','font-weight':'500'
+  });
+  t.textContent=label;
+  dsvg.appendChild(t);
+}
+
+let dagCur=0;
+function dagRender(){
+  const s=dagSteps[dagCur];
+  const pruned=s.pruned;
+  const surv=s.surv;
+  for(const id of dagNodeIds){
+    const c=document.getElementById('dn-'+id);
+    const t=document.getElementById('dl-'+id);
+    let st;
+    if(pruned.has(id))st='s-p';
+    else if(surv.has(id)||(s.final&&!pruned.has(id)))st='s-s';
+    else st='s-a';
+    c.setAttribute('class','nc '+st);
+    t.setAttribute('class','nl '+st);
+  }
+  for(const e of dagEdgeList){
+    const line=document.getElementById('de-'+e.id);
+    let st;
+    if(pruned.has(e.from)||pruned.has(e.to))st='s-p';
+    else if(s.final)st='s-s';
+    else st='s-a';
+    line.setAttribute('class','el '+st);
+  }
+  for(let l=0;l<=optCost;l++){
+    document.getElementById('dlbg'+l).style.opacity=l===s.cl?'1':'0';
+  }
+  document.getElementById('dsl').textContent='Step '+(dagCur+1)+' / '+dagSteps.length;
+  document.getElementById('bp').disabled=dagCur===0;
+  document.getElementById('bn').disabled=dagCur===dagSteps.length-1;
+  document.getElementById('ddesc').innerHTML=s.html;
+}
+function dagGo(d){dagCur=Math.max(0,Math.min(dagSteps.length-1,dagCur+d));dagRender();}
+dagRender();
+
+// Keyboard navigation
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key==='ArrowDown'){
+    if(phase==='fwd')fwdGo(1);else if(phase==='dag')dagGo(1);
+  }else if(e.key==='ArrowLeft'||e.key==='ArrowUp'){
+    if(phase==='fwd')fwdGo(-1);else if(phase==='dag')dagGo(-1);
+  }
+});
+</script>
