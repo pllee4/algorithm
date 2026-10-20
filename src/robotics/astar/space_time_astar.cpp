@@ -141,8 +141,8 @@ SpaceTimeAstar::StepOverSpaceTimePathFinding() {
       continue;  // g == t, so never re-open
 
     nodes_.push_back(Node{next, next_t, cur});
-    open_.push(OpenEntry{next_t + heuristic, next_t,
-                         static_cast<int>(nodes_.size()) - 1});
+    const auto node_idx = static_cast<int>(nodes_.size()) - 1;
+    open_.push(OpenEntry{next_t + heuristic, next_t, node_idx});
     new_states.push_back(State{next, next_t});
   }
   return new_states;

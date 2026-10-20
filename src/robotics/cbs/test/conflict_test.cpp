@@ -244,6 +244,39 @@ TEST(Conflict, FindAllConflictsDetectsTargetConflicts) {
   EXPECT_TRUE(found_target);
 }
 
+// --- Both parked, path2 shorter ---
+
+TEST(Conflict, BothParkedPath2ShorterTargetsAgent2) {
+  // Agent 0 waits then arrives at (1,0) at t=2 (path size 3, parked from t=2).
+  // Agent 1 arrives at (1,0) at t=1 (path size 2, parked from t=1).
+  // At t=2 both are parked at (1,0). path2 is shorter, so agent 1
+  // (the earlier arrival) is the parked agent in the target conflict.
+  const Solution solution = {{{0, 0}, {0, 0}, {1, 0}},
+                              {{2, 0}, {1, 0}}};
+  const auto conflict = FindFirstConflict(solution);
+  ASSERT_TRUE(conflict.has_value());
+  EXPECT_EQ(conflict->type, Conflict::Type::kTarget);
+  EXPECT_EQ(conflict->agent1, 1);
+  EXPECT_EQ(conflict->agent2, 0);
+  EXPECT_EQ(conflict->timestep, 2);
+}
+
+// --- FindFirstConflict two-path overload with non-empty paths ---
+
+TEST(Conflict, FindFirstConflictTwoPathOverloadFindsConflict) {
+  const Path path1 = {{0, 0}, {1, 0}, {2, 0}};
+  const Path path2 = {{2, 0}, {1, 0}, {0, 0}};
+  const auto conflict = FindFirstConflict(path1, path2, 0, 1);
+  ASSERT_TRUE(conflict.has_value());
+  EXPECT_EQ(conflict->timestep, 1);
+}
+
+TEST(Conflict, FindFirstConflictTwoPathOverloadNoConflict) {
+  const Path path1 = {{0, 0}, {1, 0}, {2, 0}};
+  const Path path2 = {{0, 2}, {1, 2}, {2, 2}};
+  EXPECT_FALSE(FindFirstConflict(path1, path2, 0, 1).has_value());
+}
+
 // --- Measures ---
 
 TEST(Conflict, SumOfCostsAddsUpArrivalTimes) {

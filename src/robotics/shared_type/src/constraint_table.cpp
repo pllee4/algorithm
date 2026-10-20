@@ -63,8 +63,6 @@ ConstraintTable::ConstraintTable(const std::vector<Constraint> &constraints,
     latest_constraint_ = std::max(latest_constraint_, GetTimestep(constraint));
   }
   if (latest_constraint_ < min_length_) latest_constraint_ = min_length_;
-  if (max_length_ < kMaxTimestep && latest_constraint_ < max_length_)
-    latest_constraint_ = max_length_;
 }
 
 bool ConstraintTable::IsBlocked(const Coordinate &cell, int t) const {

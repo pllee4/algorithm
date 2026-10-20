@@ -93,8 +93,10 @@ TEST(MDD, BackwardPassPrunesDeadEnds) {
   auto constraints =
       std::vector<Constraint>{VertexConstraint{0, Coordinate{3, 2}, 5}};
 
-  MDD mdd(4, 4, {Coordinate{1, 1}}, Coordinate{0, 0}, Coordinate{3, 3},
-          constraints, 0, 6);
+  const auto obstacles = std::vector<Coordinate>{Coordinate{1, 1}};
+  const auto start = Coordinate{0, 0};
+  const auto goal = Coordinate{3, 3};
+  MDD mdd(4, 4, obstacles, start, goal, constraints, 0, 6);
 
   EXPECT_EQ(mdd.GetNumLevels(), 7);
 
