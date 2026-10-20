@@ -34,6 +34,8 @@ CBS::CBS(int width, int height, const std::vector<Coordinate> &obstacles,
 
 Path CBS::PlanAgent(int agent, const std::vector<Constraint> &constraints) {
   planners_[agent].SetConstraints(constraints);
+  ConstraintTable ct(constraints, agents_[agent].goal, agent);
+  if (ct.GetHoldingTime() >= ConstraintTable::kMaxTimestep) return {};
   if (!planners_[agent].FindPath()) return {};
   return planners_[agent].GetPath().value_or(Path{});
 }

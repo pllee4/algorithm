@@ -167,6 +167,16 @@ TEST(SpaceTimeAstar, HeuristicFollowsOccupiedGrid) {
   EXPECT_EQ(planner.GetPath().value().size(), 10u);
 }
 
+TEST(SpaceTimeAstar, ConflictingLengthConstraintsNoPath) {
+  SpaceTimeAstar planner;
+  planner.SetMapStorageSize(3, 1);
+  planner.SetStartAndDestination({0, 0}, {2, 0});
+  planner.SetConstraints({GLengthConstraint{-1, Coordinate{2, 0}, 10},
+                          LeqLengthConstraint{-1, Coordinate{2, 0}, 3}});
+  EXPECT_FALSE(planner.FindPath());
+  EXPECT_FALSE(planner.GetPath().has_value());
+}
+
 TEST(SpaceTimeAstar, GetPathAfterReset) {
   SpaceTimeAstar planner;
   SetUpCorridor(planner);
