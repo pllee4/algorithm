@@ -12,6 +12,7 @@
 
 #include <memory>
 #include <set>
+#include <cstdint>
 
 #include "algorithm/robotics/astar_variant/heuristic.hpp"
 #include "algorithm/robotics/astar_variant/map_storage.hpp"

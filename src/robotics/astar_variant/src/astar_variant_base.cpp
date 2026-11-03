@@ -9,6 +9,8 @@
 
 #include "algorithm/robotics/astar_variant/astar_variant_base.hpp"
 
+#include <algorithm>
+
 namespace pllee4::graph {
 void AstarVariantBase::SetMapStorageSize(const size_t x_size,
                                          const size_t y_size) {
